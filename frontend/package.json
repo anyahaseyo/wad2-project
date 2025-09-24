@@ -1,0 +1,15 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+ "scripts": {
+  "dev": "vue-cli-service serve",
+  "serve": "vue-cli-service serve",
+  "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "vue": "^3.0.0",
+    "vue-router": "^4.5.1",
+    "vuetify": "^3.9.0-beta.1"
+  }
+}
