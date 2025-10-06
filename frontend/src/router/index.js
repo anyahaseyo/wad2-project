@@ -1,21 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import dashboard from '@/views/dashboard.vue'
-import habits from '@/views/habits.vue'
+import health from '@/views/health.vue'
+import loginpage from '@/views/loginpage.vue'
+import profile from '@/views/profile.vue'
+import progress from '@/views/progress.vue'
+import socialhub from '@/views/socialhub.vue'
+import tasktracker from '@/views/tasktracker.vue'
 import timer from '@/views/timer.vue'
-import calendar from '@/views/calendar.vue'
-import friends from '@/views/friends.vue'
-import login from '@/views/loginpage.vue' 
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', redirect: '/dashboard' },
-    { path: '/login', component: login, meta: { public: true } }, // optional
+    { path: '/login', component: loginpage, meta: { public: true } },
     { path: '/dashboard', component: dashboard },
-    { path: '/habits', component: habits },
+    { path: '/health', component: health },
+    { path: '/profile', component: profile },
+    { path: '/progress', component: progress },
+    { path: '/social', component: socialhub },
+    { path: '/tasks', component: tasktracker },
     { path: '/timer', component: timer },
-    { path: '/calendar', component: calendar },
-    { path: '/friends', component: friends },
   ],
   scrollBehavior: () => ({ top: 0 }),
 })
