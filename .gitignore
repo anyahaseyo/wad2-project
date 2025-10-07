@@ -18,11 +18,15 @@ yarn-error.log*
 frontend/dist/
 backend/dist/
 
+# Backend python
+__pycache__/
+backend/venv
+
 # Firebase deployment files and cache
 /firebase-debug.log
 /firebase-debug.*.log
 .firebase/
-firebase.json
+# firebase.json
 .cache/
 hosting/.cache/
 
