@@ -25,16 +25,40 @@ function updateHtmlTheme() {
   else html.removeAttribute('data-theme')
 }
 
+function updateProfileSettings() {
+  // Update profile settings to match theme toggle
+  const preferences = JSON.parse(localStorage.getItem('user_preferences') || '{}')
+  preferences.theme = darkOn.value ? 'dark' : 'light'
+  localStorage.setItem('user_preferences', JSON.stringify(preferences))
+}
+
 onMounted(() => {
-  const saved = localStorage.getItem('sb_theme')
-  theme.global.name.value = saved || 'sbLight'
-  darkOn.value = theme.global.name.value === 'sbDark'
-  updateHtmlTheme()
+  // Check if profile settings exist first
+  const profilePrefs = JSON.parse(localStorage.getItem('user_preferences') || '{}')
+  
+  if (profilePrefs.theme) {
+    // Use profile settings
+    darkOn.value = profilePrefs.theme === 'dark'
+    theme.global.name.value = darkOn.value ? 'sbDark' : 'sbLight'
+    updateHtmlTheme()
+  } else {
+    // Fallback to old system
+    const saved = localStorage.getItem('sb_theme')
+    theme.global.name.value = saved || 'sbLight'
+    darkOn.value = theme.global.name.value === 'sbDark'
+    updateHtmlTheme()
+    
+    // Save to profile settings
+    updateProfileSettings()
+  }
 })
 
 watch(darkOn, (val) => {
   theme.global.name.value = val ? 'sbDark' : 'sbLight'
-  localStorage.setItem('sb_theme', theme.global.name.value)
   updateHtmlTheme()
+  updateProfileSettings()
+  
+  // Also save to old system for compatibility
+  localStorage.setItem('sb_theme', theme.global.name.value)
 })
 </script>
