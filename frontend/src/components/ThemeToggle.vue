@@ -1,29 +1,40 @@
+<template>
+  <div class="d-flex align-center justify-space-between">
+    <v-icon :icon="darkOn ? 'mdi-weather-night' : 'mdi-white-balance-sunny'" size="18" />
+    <v-switch
+      v-model="darkOn"
+      hide-details
+      density="compact"
+      color="primary"
+      inset
+      class="ma-0 pa-0"
+    />
+  </div>
+</template>
+
 <script setup>
-import { ref, onMounted } from 'vue'
+import { useTheme } from 'vuetify'
+import { ref, onMounted, watch } from 'vue'
 
-const theme = ref('dark')
+const theme = useTheme()
+const darkOn = ref(false)
 
-const toggleTheme = () => {
-  theme.value = theme.value === 'dark' ? 'light' : 'dark'
-  document.documentElement.setAttribute('data-theme', theme.value)
-  localStorage.setItem('theme', theme.value)
+function updateHtmlTheme() {
+  const html = document.documentElement
+  if (darkOn.value) html.setAttribute('data-theme', 'dark')
+  else html.removeAttribute('data-theme')
 }
 
 onMounted(() => {
-  const savedTheme = localStorage.getItem('theme') || 'dark'
-  theme.value = savedTheme
-  document.documentElement.setAttribute('data-theme', savedTheme)
+  const saved = localStorage.getItem('sb_theme')
+  theme.global.name.value = saved || 'sbLight'
+  darkOn.value = theme.global.name.value === 'sbDark'
+  updateHtmlTheme()
+})
+
+watch(darkOn, (val) => {
+  theme.global.name.value = val ? 'sbDark' : 'sbLight'
+  localStorage.setItem('sb_theme', theme.global.name.value)
+  updateHtmlTheme()
 })
 </script>
-
-<template>
-  <v-btn
-    class="theme-toggle"
-    icon
-    variant="flat"
-    @click="toggleTheme"
-  >
-    <v-icon v-if="theme === 'dark'">mdi-white-balance-sunny</v-icon>
-    <v-icon v-else>mdi-moon-waning-crescent</v-icon>
-  </v-btn>
-</template>
