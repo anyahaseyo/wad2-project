@@ -128,32 +128,67 @@
       <h3 class="section-title">Check-in History</h3>
       <p class="section-subtitle">Click on any date to view your check-in</p>
       
-      <div class="calendar">
-        <div class="calendar-header">
-          <button @click="previousMonth" class="nav-btn">‹</button>
-          <span class="month-year">{{ currentMonthYear }}</span>
-          <button @click="nextMonth" class="nav-btn">›</button>
-        </div>
-        
-        <div class="calendar-grid">
-          <div v-for="day in weekDays" :key="day" class="calendar-day-header">
-            {{ day }}
+      <div class="history-grid">
+        <div class="calendar">
+            <div class="calendar-header">
+            <button @click="previousMonth" class="nav-btn">‹</button>
+            <span class="month-year">{{ currentMonthYear }}</span>
+            <button @click="nextMonth" class="nav-btn">›</button>
+            </div>
+            
+            <div class="calendar-grid">
+            <div v-for="day in weekDays" :key="day" class="calendar-day-header">
+                {{ day }}
+            </div>
+            <div 
+                v-for="date in calendarDates" 
+                :key="date.key"
+                @click="selectDate(date)"
+                :class="['calendar-date', {
+                'other-month': date.isOtherMonth,
+                'today': date.isToday,
+                'selected': date.isSelected,
+                'has-checkin': date.hasCheckIn
+                }]"
+            >
+                {{ date.day }}
+            </div>
           </div>
-          <div 
-            v-for="date in calendarDates" 
-            :key="date.key"
-            @click="selectDate(date)"
-            :class="['calendar-date', {
-              'other-month': date.isOtherMonth,
-              'today': date.isToday,
-              'selected': date.isSelected,
-              'has-checkin': date.hasCheckIn
-            }]"
-          >
-            {{ date.day }}
-          </div>
         </div>
-      </div>
+
+        <div class="pet-stats-panel" v-if="selectedPetStats">
+            <h3 class="section-title">Pet Status for {{ selectedDate.toLocaleDateString() }}</h3>
+
+                <div class="pet-stat">
+                    <span class="label">Mood:</span>
+                    <span class="value">{{ selectedPetStats.mood }}</span>
+                </div>
+
+                <div class="pet-stat">
+                    <span class="label">Meals:</span>
+                    <span class="value">{{ selectedPetStats.meals }}</span>
+                </div>
+
+                <div class="pet-stat">
+                    <span class="label">Walks:</span>
+                    <span class="value">{{ selectedPetStats.walks }}</span>
+                </div>
+
+                <div class="pet-stat">
+                    <span class="label">Playtime:</span>
+                    <span class="value">{{ selectedPetStats.playTime }}</span>
+                </div>
+
+                <div class="pet-stat">
+                    <span class="label">Growth Stage:</span>
+                    <span class="value">{{ selectedPetStats.growthStage }}</span>
+                </div>
+            </div>
+
+            <div v-else class="pet-stats-empty">
+                <p>No pet stats recorded for this date 🐾</p>
+            </div>
+        </div>
     </div>
 
     <div class="wellness-tips">
@@ -202,7 +237,30 @@ const currentDate = ref(new Date())
 const selectedDate = ref(new Date())
 const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
+// Pet check-in history (replace w/ real data ltr)
+const petHistory = ref({
+  '2025-10-08': {
+    mood: 'Happy 🐶',
+    meals: 3,
+    walks: 2,
+    playTime: '45 mins',
+    growthStage: 'Playful Pup 🌱'
+  },
+  '2025-10-05': {
+    mood: 'Sleepy 😴',
+    meals: 2,
+    walks: 1,
+    playTime: '15 mins',
+    growthStage: 'Rest Day 💤'
+  }
+})
+
 // Computed properties
+const selectedPetStats = computed(() => {
+  const key = selectedDate.value.toISOString().split('T')[0]
+  return petHistory.value[key] || null
+})
+
 const getMoodFeedback = computed(() => {
   if (mood.value >= 8) return 'Feeling great!'
   if (mood.value >= 6) return 'Pretty good'
@@ -255,12 +313,12 @@ const calendarDates = computed(() => {
   // Previous month dates
   for (let i = firstDayOfWeek - 1; i >= 0; i--) {
     dates.push({
-      day: prevLastDate - i,
-      isOtherMonth: true,
-      isToday: false,
-      isSelected: false,
-      hasCheckIn: false,
-      key: `prev-${prevLastDate - i}`
+        day: prevLastDate - i,
+        isOtherMonth: true,
+        isToday: false,
+        isSelected: false,
+        hasCheckIn: false,
+        key: `prev-${prevLastDate - i}`
     })
   }
   
@@ -272,14 +330,14 @@ const calendarDates = computed(() => {
                     year === today.getFullYear()
     
     dates.push({
-      day: i,
-      isOtherMonth: false,
-      isToday,
-      isSelected: i === selectedDate.value.getDate() && 
-                  month === selectedDate.value.getMonth() &&
-                  year === selectedDate.value.getFullYear(),
-      hasCheckIn: i === 8, // Example: Oct 8 has check-in
-      key: `current-${i}`
+        day: i,
+        isOtherMonth: false,
+        isToday,
+        isSelected: i === selectedDate.value.getDate() && 
+                    month === selectedDate.value.getMonth() &&
+                    year === selectedDate.value.getFullYear(),
+        hasCheckIn: i === 8, // Example: Oct 8 has check-in
+        key: `current-${i}`
     })
   }
   
@@ -760,6 +818,31 @@ const selectDate = (date) => {
   margin-bottom: 0;
 }
 
+/* Pet Stats Panel */
+.pet-stats-panel, .pet-stats-empty {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid rgba(170,196,188,0.25);
+  border-radius: 12px;
+}
+
+.pet-stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.pet-stat .label {
+  color: var(--text-muted);
+}
+
+.pet-stat .value {
+  font-weight: 600;
+  color: var(--primary);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .main-content {
@@ -769,5 +852,24 @@ const selectDate = (date) => {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+.history-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* two equal columns */
+  gap: 1.5rem; /* spacing between columns */
+}
+
+@media (max-width: 768px) {
+  .history-grid {
+    grid-template-columns: 1fr; /* stack vertically on small screens */
+  }
+}
+
+.pet-stats-panel-wrapper {
+  background: var(--surface);
+  border: 1px solid var(--surface-lighter);
+  border-radius: 12px;
+  padding: 1.5rem;
 }
 </style>
