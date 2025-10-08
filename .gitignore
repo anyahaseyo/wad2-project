@@ -6,6 +6,7 @@ frontend/node_modules/
 # Local env files
 .env
 backend/.env
+backend/serviceAccountKey.json
 frontend/.env
 
 # Log files
@@ -20,7 +21,7 @@ backend/dist/
 
 # Backend python
 __pycache__/
-backend/venv
+backend/.venv
 
 # Firebase deployment files and cache
 /firebase-debug.log

@@ -4,26 +4,20 @@ basic firebase backend in python
 
 ## Requirements
 
-- [firebase cli](https://firebase.google.com/docs/cli)
+- [uv](https://github.com/astral-sh/uv) (recommended package + venv manager)
 - python 3.13
 
 ## Setup
 
-change python/pip to python3/pip3 depending on os
-
 ```bash
-# init venv
-python -m venv venv
-source venv/bin/activate
+# sync dependencies
+cd backend
+uv sync
 
-# install deps
-pip install -r requirements.txt
-```
+# activate environment
+source .venv/bin/activate   # macos/linux
+.venv\Scripts\activate      # windows
 
-## Testing
-
-deploying locally
-
-```bash
-firebase emulators:start --only functions
+# run app
+uv run main.py
 ```
