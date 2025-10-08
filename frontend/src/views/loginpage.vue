@@ -1,7 +1,9 @@
 <template>
   <v-container class="fill-height d-flex align-center justify-center" fluid>
     <v-card width="460" elevation="8" class="pa-6 rounded-xxl text-center">
-      <v-avatar size="56" class="mb-2" color="secondary" variant="tonal">🐱</v-avatar>
+      <v-avatar size="56" class="mb-2" color="secondary" variant="tonal"
+        >🐱</v-avatar
+      >
       <h2 class="text-h5 font-weight-bold mb-1 text-primary">StudyBuddy</h2>
       <p class="text-body-2 mb-6" style="color: var(--text-secondary)">
         Your wellness companion for academic success
@@ -51,7 +53,13 @@
               class="mb-4"
               hide-details
             />
-            <v-btn type="submit" block color="primary" size="large" class="text-white">
+            <v-btn
+              type="submit"
+              block
+              color="primary"
+              size="large"
+              class="text-white"
+            >
               Sign In
             </v-btn>
           </v-form>
@@ -60,11 +68,47 @@
         <!-- SIGN UP -->
         <v-window-item value="signup">
           <v-form @submit.prevent="submit('signup')">
-            <v-text-field v-model="fullName" label="Full Name" variant="outlined" density="comfortable" class="mb-3" hide-details />
-            <v-text-field v-model="email" label="Email" variant="outlined" density="comfortable" class="mb-3" hide-details />
-            <v-text-field v-model="password" label="Password" type="password" variant="outlined" density="comfortable" class="mb-3" hide-details />
-            <v-text-field v-model="confirm" label="Confirm Password" type="password" variant="outlined" density="comfortable" class="mb-4" hide-details />
-            <v-btn type="submit" block color="primary" size="large" class="text-white">
+            <v-text-field
+              v-model="fullName"
+              label="Full Name"
+              variant="outlined"
+              density="comfortable"
+              class="mb-3"
+              hide-details
+            />
+            <v-text-field
+              v-model="email"
+              label="Email"
+              variant="outlined"
+              density="comfortable"
+              class="mb-3"
+              hide-details
+            />
+            <v-text-field
+              v-model="password"
+              label="Password"
+              type="password"
+              variant="outlined"
+              density="comfortable"
+              class="mb-3"
+              hide-details
+            />
+            <v-text-field
+              v-model="confirm"
+              label="Confirm Password"
+              type="password"
+              variant="outlined"
+              density="comfortable"
+              class="mb-4"
+              hide-details
+            />
+            <v-btn
+              type="submit"
+              block
+              color="primary"
+              size="large"
+              class="text-white"
+            >
               Create Account
             </v-btn>
           </v-form>
@@ -79,68 +123,79 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { auth } from '@/lib/firebase'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { auth } from "@/lib/firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
-const router = useRouter()
-const tab = ref('login')
-const email = ref('')
-const password = ref('')
-const fullName = ref('')
-const confirm = ref('')
-const errorMsg = ref('')
+const router = useRouter();
+const tab = ref("login");
+const email = ref("");
+const password = ref("");
+const fullName = ref("");
+const confirm = ref("");
+const errorMsg = ref("");
 
 async function submit(mode) {
-  const apiUrl = process.env.VUE_APP_API_URL
+  const apiUrl = process.env.VUE_APP_API_URL;
   try {
     // https://firebase.google.com/docs/auth/web/manage-users
-    if (mode === 'signup') {
+    if (mode === "signup") {
       // check if password and confirm password are the same
       if (password.value !== confirm.value) {
-        throw new Error('Passwords do not match')
+        throw new Error("Passwords do not match");
       }
 
-      const userCredentials = await createUserWithEmailAndPassword(auth, email.value, password.value)
+      const userCredentials = await createUserWithEmailAndPassword(
+        auth,
+        email.value,
+        password.value
+      );
 
-      const idToken = await userCredentials.user.getIdToken()
+      const idToken = await userCredentials.user.getIdToken();
 
       const response = await fetch(`${apiUrl}/api/profile`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify({
           name: fullName.value,
           email: email.value,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('failed to sign up')
+        throw new Error("failed to sign up");
       }
     } else {
-      const userCredentials = await signInWithEmailAndPassword(auth, email.value, password.value)
-
-      const idToken = await userCredentials.user.getIdToken()
+      const userCredentials = await signInWithEmailAndPassword(
+        auth,
+        email.value,
+        password.value
+      );
+      const idToken = await userCredentials.user.getIdToken();
 
       const response = await fetch(`${apiUrl}/api/auth/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('login failed')
+        throw new Error("login failed");
       }
     }
-    router.push('/dashboard')
+
+    router.push("/dashboard");
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 }
 </script>
@@ -148,7 +203,11 @@ async function submit(mode) {
 <style scoped>
 /* page bg like the figma */
 .v-container {
-  background: linear-gradient(180deg, rgba(170,196,188,.22), rgba(215,203,178,.16));
+  background: linear-gradient(
+    180deg,
+    rgba(170, 196, 188, 0.22),
+    rgba(215, 203, 178, 0.16)
+  );
 }
 .v-card {
   backdrop-filter: blur(10px);
@@ -175,10 +234,12 @@ async function submit(mode) {
   height: calc(100% - 8px);
   border-radius: 999px;
   background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
-  transition: transform .2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
 }
-.segmented .thumb.signup { transform: translateX(100%); }
+.segmented .thumb.signup {
+  transform: translateX(100%);
+}
 
 .seg-btn {
   position: relative;
@@ -190,5 +251,7 @@ async function submit(mode) {
   color: var(--text-muted);
   cursor: pointer;
 }
-.seg-btn.active { color: var(--text-primary); }
+.seg-btn.active {
+  color: var(--text-primary);
+}
 </style>
