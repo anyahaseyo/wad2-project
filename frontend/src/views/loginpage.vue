@@ -106,7 +106,7 @@ async function submit(mode) {
 
       const idToken = await userCredentials.user.getIdToken()
 
-      const response = await fetch(`${apiUrl}/api/auth/signup`, {
+      const response = await fetch(`${apiUrl}/api/profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
