@@ -9,12 +9,13 @@
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "@supabase/supabase-js": "^2.74.0",
+    "apexcharts": "^5.3.5",
+    "firebase": "^12.3.0",
     "lucide-vue-next": "^0.544.0",
     "vue": "^3.0.0",
     "vue-router": "^4.5.1",
-    "vuetify": "^3.9.0-beta.1",
-    "apexcharts": "^5.3.5",
-    "vue3-apexcharts": "^1.8.0"
+    "vue3-apexcharts": "^1.8.0",
+    "vuetify": "^3.9.0-beta.1"
   },
   "devDependencies": {
     "@vue/cli-service": "^5.0.9"

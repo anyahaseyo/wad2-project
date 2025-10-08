@@ -1,13 +1,11 @@
 from fastapi import FastAPI
-from firebase_admin import credentials, firestore, initialize_app
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import auth
+
+from app.api.routes import auth, profile
+from app.core.firebase import db
 
 app = FastAPI()
 
-cred = credentials.Certificate("serviceAccountKey.json")
-initialize_app(cred)
-db = firestore.client()
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,6 +16,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/api")
+app.include_router(profile.router, prefix="/api")
 
 
 @app.get("/")

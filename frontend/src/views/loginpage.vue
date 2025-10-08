@@ -81,6 +81,8 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { auth } from '@/lib/firebase'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 
 const router = useRouter()
 const tab = ref('login')
@@ -88,13 +90,58 @@ const email = ref('')
 const password = ref('')
 const fullName = ref('')
 const confirm = ref('')
+const errorMsg = ref('')
 
-function submit(mode) {
-  localStorage.setItem(
-    'demo_user',
-    JSON.stringify({ email: email.value, name: fullName.value || email.value.split('@')[0] })
-  )
-  router.push('/dashboard')
+async function submit(mode) {
+  const apiUrl = process.env.VUE_APP_API_URL
+  try {
+    // https://firebase.google.com/docs/auth/web/manage-users
+    if (mode === 'signup') {
+      // check if password and confirm password are the same
+      if (password.value !== confirm.value) {
+        throw new Error('Passwords do not match')
+      }
+
+      const userCredentials = await createUserWithEmailAndPassword(auth, email.value, password.value)
+
+      const idToken = await userCredentials.user.getIdToken()
+
+      const response = await fetch(`${apiUrl}/api/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          name: fullName.value,
+          email: email.value,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('failed to sign up')
+      }
+    } else {
+      const userCredentials = await signInWithEmailAndPassword(auth, email.value, password.value)
+
+      const idToken = await userCredentials.user.getIdToken()
+
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('login failed')
+      }
+    }
+    router.push('/dashboard')
+  } catch (err) {
+    console.log(err)
+  }
 }
 </script>
 
