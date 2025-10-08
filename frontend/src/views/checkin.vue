@@ -6,7 +6,6 @@
     </div>
 
     <div class="main-content">
-       Wellness Overview Sidebar 
       <div class="wellness-overview">
         <h3 class="section-title">
           <span class="icon">📊</span> Wellness Overview
@@ -25,13 +24,11 @@
         </div>
       </div>
 
-       Today's Check-in 
       <div class="check-in-card">
         <div v-if="!isCompleted">
           <h3 class="section-title">Today's Check-in</h3>
           <p class="section-subtitle">How are you feeling today?</p>
 
-           Mood Slider 
           <div class="slider-group">
             <div class="slider-header">
               <span class="slider-label">
@@ -103,7 +100,6 @@
             <p class="slider-feedback">{{ getStressFeedback }}</p>
           </div>
 
-           Notes 
           <div class="notes-section">
             <label class="notes-label">Notes (optional)</label>
             <textarea 
@@ -114,9 +110,7 @@
             ></textarea>
           </div>
 
-           Complete Button 
           <button @click="completeCheckIn" class="complete-btn">
-            <span class="heart-icon">❤️</span>
             Complete Check-in
           </button>
         </div>
@@ -130,7 +124,6 @@
       </div>
     </div>
 
-     Check-in History 
     <div class="history-section">
       <h3 class="section-title">Check-in History</h3>
       <p class="section-subtitle">Click on any date to view your check-in</p>
@@ -163,7 +156,6 @@
       </div>
     </div>
 
-     Wellness Tips 
     <div class="wellness-tips">
       <h3 class="section-title">Wellness Tips</h3>
       
@@ -355,8 +347,8 @@ const selectDate = (date) => {
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, rgba(170,196,188,0.08), rgba(215,203,178,0.05));
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--background);
   min-height: 100vh;
 }
 
@@ -367,35 +359,37 @@ const selectDate = (date) => {
 .header h1 {
   font-size: 2rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: (--text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .subtitle {
-  color: #666;
+  color: var(--text-muted);
   margin: 0;
   font-size: 0.95rem;
 }
 
 .main-content {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 1.5rem;
   margin-bottom: 2rem;
+  align-items: start;
 }
 
 /* Wellness Overview */
 .wellness-overview {
-  background: white;
-  border: 1px solid rgba(170,196,188,0.3);
+  background: var(--surface);
+  border: 1px solid var(--surface-lighter);
   border-radius: 12px;
-  padding: 1.25rem;
+  padding: 1.5rem;
+  height: fit-content;
 }
 
 .section-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
@@ -412,7 +406,7 @@ const selectDate = (date) => {
 }
 
 .stat-card {
-  background: linear-gradient(135deg, rgba(170,196,188,0.12), rgba(215,203,178,0.08));
+  background: var(--background);
   border: 1px solid rgba(170,196,188,0.25);
   border-radius: 10px;
   padding: 1rem;
@@ -421,14 +415,14 @@ const selectDate = (date) => {
 
 .stat-label {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-muted);
   margin-bottom: 0.4rem;
 }
 
 .stat-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #5a8a7a;
+  color: var(--primary);
   margin-bottom: 0.2rem;
 }
 
@@ -439,14 +433,14 @@ const selectDate = (date) => {
 
 /* Check-in Card */
 .check-in-card {
-  background: linear-gradient(135deg, rgba(170,196,188,0.15), rgba(215,203,178,0.1));
+  background: var(--background);
   border: 1.5px solid rgba(170,196,188,0.4);
   border-radius: 12px;
   padding: 2rem;
 }
 
 .section-subtitle {
-  color: #666;
+  color: var(--text-muted);
   margin: 0 0 1.5rem 0;
   font-size: 0.95rem;
 }
@@ -477,7 +471,7 @@ const selectDate = (date) => {
 
 .slider-value {
   font-weight: 600;
-  color: #5a8a7a;
+  color: var(--primary);
   font-size: 0.95rem;
 }
 
@@ -497,7 +491,7 @@ const selectDate = (date) => {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #5a8a7a;
+  background: var(--primary);
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -507,7 +501,7 @@ const selectDate = (date) => {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #5a8a7a;
+  background: var(--primary);
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -515,7 +509,7 @@ const selectDate = (date) => {
 
 .slider-feedback {
   font-size: 0.85rem;
-  color: #5a8a7a;
+  color: var(--primary);
   margin: 0;
   font-weight: 500;
 }
@@ -541,19 +535,19 @@ const selectDate = (date) => {
   font-family: inherit;
   font-size: 0.95rem;
   resize: vertical;
-  background: white;
+  background: var(--surface);
 }
 
 .notes-textarea:focus {
   outline: none;
-  border-color: #5a8a7a;
+  border-color: var(--primary);
 }
 
 /* Complete Button */
 .complete-btn {
   width: 100%;
   padding: 1rem;
-  background: #1a1a1a;
+  background: #6A7A5A;
   color: white;
   border: none;
   border-radius: 8px;
@@ -563,16 +557,11 @@ const selectDate = (date) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
   transition: background 0.2s;
 }
 
 .complete-btn:hover {
-  background: #2a2a2a;
-}
-
-.heart-icon {
-  font-size: 1.1rem;
+  background: #5a6a4a;
 }
 
 /* Completion Message */
@@ -584,7 +573,7 @@ const selectDate = (date) => {
 .success-icon {
   width: 60px;
   height: 60px;
-  background: #5a8a7a;
+  background: var(--primary);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -595,19 +584,19 @@ const selectDate = (date) => {
 }
 
 .completion-message h3 {
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .completion-message p {
-  color: #666;
+  color: var(--text-muted);
   margin: 0 0 1.5rem 0;
 }
 
 .reset-btn {
   padding: 0.75rem 1.5rem;
-  background: white;
-  color: #5a8a7a;
+  background: var(--surface);
+  color: var(--primary);
   border: 1px solid #5a8a7a;
   border-radius: 8px;
   font-weight: 600;
@@ -620,8 +609,8 @@ const selectDate = (date) => {
 
 /* Calendar */
 .history-section {
-  background: white;
-  border: 1px solid rgba(170,196,188,0.3);
+  background: var(--surface);
+  border: 1px solid var(--surface-lighter);
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -641,7 +630,7 @@ const selectDate = (date) => {
 
 .month-year {
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 .nav-btn {
@@ -649,7 +638,7 @@ const selectDate = (date) => {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #5a8a7a;
+  color: var(--primary);
   padding: 0.25rem 0.75rem;
 }
 
@@ -668,7 +657,7 @@ const selectDate = (date) => {
   text-align: center;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #666;
+  color: var(--text-muted);
   padding: 0.5rem;
 }
 
@@ -698,7 +687,7 @@ const selectDate = (date) => {
 }
 
 .calendar-date.selected {
-  background: #5a8a7a;
+  background: var(--primary);
   color: white;
 }
 
@@ -712,18 +701,18 @@ const selectDate = (date) => {
   bottom: 4px;
   width: 4px;
   height: 4px;
-  background: #5a8a7a;
+  background: var(--primary);
   border-radius: 50%;
 }
 
 .calendar-date.has-checkin.today::after {
-  background: white;
+  background: var(--surface);
 }
 
 /* Wellness Tips */
 .wellness-tips {
-  background: white;
-  border: 1px solid rgba(170,196,188,0.3);
+  background: var(--surface);
+  border: 1px solid var(--surface-lighter);
   border-radius: 12px;
   padding: 2rem;
 }
@@ -737,7 +726,7 @@ const selectDate = (date) => {
 
 .tip-card {
   padding: 1.25rem;
-  background: linear-gradient(135deg, rgba(170,196,188,0.08), rgba(215,203,178,0.05));
+  background: var(--background);
   border: 1px solid rgba(170,196,188,0.2);
   border-radius: 10px;
 }
@@ -745,7 +734,7 @@ const selectDate = (date) => {
 .tip-title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
@@ -759,7 +748,7 @@ const selectDate = (date) => {
 .tip-list {
   margin: 0;
   padding-left: 1.25rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .tip-list li {
