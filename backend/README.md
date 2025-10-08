@@ -19,5 +19,5 @@ source .venv/bin/activate   # macos/linux
 .venv\Scripts\activate      # windows
 
 # run app
-uv run main.py
+uv run uvicorn app.main:app --reload
 ```
