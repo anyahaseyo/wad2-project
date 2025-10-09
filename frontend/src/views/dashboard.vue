@@ -1,7 +1,10 @@
 <template>
   <v-container class="py-8">
     <h1 class="text-h5 text-primary font-weight-bold mb-1">
-      Welcome back, qw!
+      <template v-if="loading">Loading...</template>
+      <template v-else
+        >Welcome back, {{ userProfile?.full_name || "User" }}!</template
+      >
     </h1>
     <p class="text-body-2 text-muted mb-4">
       Here's your wellness dashboard for today
@@ -32,17 +35,31 @@
             <div class="text-body-2">Health</div>
             <div class="text-body-2">80%</div>
           </div>
-          <v-progress-linear model-value="80" height="8" rounded color="primary" />
+          <v-progress-linear
+            model-value="80"
+            height="8"
+            rounded
+            color="primary"
+          />
 
           <div class="d-flex align-center justify-space-between mt-4 mb-1">
             <div class="text-body-2">Happiness</div>
             <div class="text-body-2">70%</div>
           </div>
-          <v-progress-linear model-value="70" height="8" rounded color="primary" />
+          <v-progress-linear
+            model-value="70"
+            height="8"
+            rounded
+            color="primary"
+          />
         </div>
 
         <div class="mt-4 d-flex justify-end">
-          <v-btn color="primary" class="text-white" prepend-icon="mdi-heart-outline">
+          <v-btn
+            color="primary"
+            class="text-white"
+            prepend-icon="mdi-heart-outline"
+          >
             Feed Pet
           </v-btn>
         </div>
@@ -54,7 +71,11 @@
       <v-col cols="12" sm="6" md="3">
         <v-card class="rounded-xl" elevation="0" variant="outlined">
           <v-card-text class="text-center">
-            <v-icon icon="mdi-clock-time-four-outline" size="26" class="mb-2 text-primary" />
+            <v-icon
+              icon="mdi-clock-time-four-outline"
+              size="26"
+              class="mb-2 text-primary"
+            />
             <div class="text-subtitle-2">Study Time Today</div>
             <div class="text-h6 font-weight-bold mt-1">1h 25m</div>
             <div class="text-caption text-disabled">3 sessions completed</div>
@@ -87,7 +108,11 @@
       <v-col cols="12" sm="6" md="3">
         <v-card class="rounded-xl" elevation="0" variant="outlined">
           <v-card-text class="text-center">
-            <v-icon icon="mdi-heart-outline" size="26" class="mb-2 text-primary" />
+            <v-icon
+              icon="mdi-heart-outline"
+              size="26"
+              class="mb-2 text-primary"
+            />
             <div class="text-subtitle-2">Wellness Check</div>
             <div class="text-h6 font-weight-bold mt-1">✅ Done</div>
             <div class="text-caption text-disabled">Checked in today</div>
@@ -99,26 +124,52 @@
     <!-- Quick Actions now below stats -->
     <v-card class="rounded-xl mb-8" elevation="0" variant="outlined">
       <v-card-title class="pb-0">Quick Actions</v-card-title>
-      <v-card-subtitle class="pt-0">Get started with your daily routine</v-card-subtitle>
+      <v-card-subtitle class="pt-0"
+        >Get started with your daily routine</v-card-subtitle
+      >
       <v-card-text class="py-4">
         <v-row>
           <v-col cols="12" sm="6" md="3">
-            <v-btn block variant="outlined" color="grey-darken-1" class="rounded-lg" prepend-icon="mdi-timer-outline">
+            <v-btn
+              block
+              variant="outlined"
+              color="grey-darken-1"
+              class="rounded-lg"
+              prepend-icon="mdi-timer-outline"
+            >
               Start Timer
             </v-btn>
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <v-btn block variant="outlined" color="grey-darken-1" class="rounded-lg" prepend-icon="mdi-book-outline">
+            <v-btn
+              block
+              variant="outlined"
+              color="grey-darken-1"
+              class="rounded-lg"
+              prepend-icon="mdi-book-outline"
+            >
               Add Task
             </v-btn>
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <v-btn block variant="outlined" color="grey-darken-1" class="rounded-lg" prepend-icon="mdi-heart-outline">
+            <v-btn
+              block
+              variant="outlined"
+              color="grey-darken-1"
+              class="rounded-lg"
+              prepend-icon="mdi-heart-outline"
+            >
               Daily Check-in
             </v-btn>
           </v-col>
           <v-col cols="12" sm="6" md="3">
-            <v-btn block variant="outlined" color="grey-darken-1" class="rounded-lg" prepend-icon="mdi-trending-up">
+            <v-btn
+              block
+              variant="outlined"
+              color="grey-darken-1"
+              class="rounded-lg"
+              prepend-icon="mdi-trending-up"
+            >
               View Progress
             </v-btn>
           </v-col>
@@ -131,7 +182,9 @@
       <v-col cols="12" md="8">
         <v-card class="rounded-xl mb-4" elevation="0" variant="outlined">
           <v-card-title class="pb-0">Urgent Tasks</v-card-title>
-          <v-card-subtitle class="pt-0">Tasks due within 3 days</v-card-subtitle>
+          <v-card-subtitle class="pt-0"
+            >Tasks due within 3 days</v-card-subtitle
+          >
           <v-card-text class="py-8 text-muted">
             No urgent tasks – you're on top of things! 🎉
           </v-card-text>
@@ -141,12 +194,23 @@
       <v-col cols="12" md="4">
         <v-card class="rounded-xl mb-4" elevation="0" variant="outlined">
           <v-card-title class="pb-0">Achievements</v-card-title>
-          <v-card-subtitle class="pt-0">Your progress milestones</v-card-subtitle>
+          <v-card-subtitle class="pt-0"
+            >Your progress milestones</v-card-subtitle
+          >
           <v-list lines="two">
-            <LockedAchievement title="First Steps" sub="Complete your first study session" />
+            <LockedAchievement
+              title="First Steps"
+              sub="Complete your first study session"
+            />
             <LockedAchievement title="Task Master" sub="Complete 10 tasks" />
-            <LockedAchievement title="Consistent Learner" sub="Study 5 days in a row" />
-            <LockedAchievement title="Wellness Warrior" sub="Check in for 7 days straight" />
+            <LockedAchievement
+              title="Consistent Learner"
+              sub="Study 5 days in a row"
+            />
+            <LockedAchievement
+              title="Wellness Warrior"
+              sub="Check in for 7 days straight"
+            />
           </v-list>
         </v-card>
       </v-col>
@@ -155,19 +219,23 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed } from "vue";
+import { useAuth } from "@/composables/useAuth";
+
+const { userProfile, loading } = useAuth();
 
 const gradient = computed(() => ({
-  background: 'linear-gradient(135deg, rgba(170,196,188,.25), rgba(215,203,178,.15))',
-  border: '1px solid var(--opal)',
-}))
+  background:
+    "linear-gradient(135deg, rgba(170,196,188,.25), rgba(215,203,178,.15))",
+  border: "1px solid var(--opal)",
+}));
 </script>
 
 <script>
 export default {
   components: {
     LockedAchievement: {
-      props: ['title', 'sub'],
+      props: ["title", "sub"],
       template: `
         <v-list-item>
           <template #prepend>
@@ -181,7 +249,7 @@ export default {
       `,
     },
   },
-}
+};
 </script>
 
 <style scoped>

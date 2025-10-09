@@ -1,28 +1,56 @@
-// // simple front-end only auth using localStorage
-// import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
-// const LS_KEY = 'demo_user'
-// const _user = ref(JSON.parse(localStorage.getItem(LS_KEY) || 'null'))
+const _user = ref(null);
+const _userProfile = ref(null);
+const _loading = ref(true);
 
-// export function useAuth() {
-//   const user = computed(() => _user.value)
+// listen to auth state changes
+let unsubscribe = null;
 
-//   function login(displayName = 'Demo Student') {
-//     _user.value = {
-//       uid: 'demo-uid',
-//       displayName,
-//       photoURL: 'https://i.pravatar.cc/100?img=12',
-//     }
-//     localStorage.setItem(LS_KEY, JSON.stringify(_user.value))
-//     return _user.value
-//   }
+async function loadUserProfile(firebaseUser) {
+  try {
+    const snapshot = await getDoc(doc(db, "users", firebaseUser.uid));
+    _userProfile.value = snapshot.exists() ? snapshot.data() : null;
+  } catch (error) {
+    console.log("error fetching user profile: ", error);
+    _userProfile.value = null;
+  }
+}
 
-//   function logout() {
-//     _user.value = null
-//     localStorage.removeItem(LS_KEY)
-//   }
+if (!unsubscribe) {
+  unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    _loading.value = true;
 
-//   const isAuthed = computed(() => !!_user.value)
+    if (firebaseUser) {
+      // store firebase auth details
+      _user.value = firebaseUser;
+      // fetch firestore user details
+      await loadUserProfile(firebaseUser);
+    } else {
+      _user.value = null;
+      _userProfile.value = null;
+    }
 
-//   return { user, isAuthed, login, logout }
-// }
+    _loading.value = false;
+  });
+}
+
+export function useAuth() {
+  const user = computed(() => _user.value);
+  const userProfile = computed(() => _userProfile.value);
+  const loading = computed(() => _loading.value);
+  const isAuthed = computed(() => !!_user.value);
+
+  async function logout() {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("error signing out:", error);
+    }
+  }
+
+  return { user, userProfile, loading, isAuthed, logout };
+}
