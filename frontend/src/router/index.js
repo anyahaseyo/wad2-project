@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
-import LoginPage from "@/views/loginpage.vue";
-import Dashboard from "@/views/dashboard.vue";
-import Profile from "@/views/profile.vue";
-import Progress from "@/views/progress.vue";
-import Checkin from "@/views/checkin.vue";
+import LoginPage from "@/views/LoginPage.vue";
+import Dashboard from "@/views/Dashboard.vue";
+import Timer from "@/views/Timer.vue";
+import TaskTracker from "@/views/TaskTracker.vue"; // Fixed the import path
+import Profile from "@/views/Profile.vue";
+import Progress from "@/views/Progress.vue";
+import Checkin from "@/views/Checkin.vue";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../lib/firebase";
 
@@ -19,6 +21,18 @@ const routes = [
     path: "/dashboard",
     name: "Dashboard",
     component: Dashboard,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/timer",
+    name: "Timer",
+    component: Timer,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/task-tracker",
+    name: "TaskTracker",
+    component: TaskTracker,
     meta: { requiresAuth: true },
   },
   {
@@ -60,7 +74,7 @@ router.beforeEach(async (to, from, next) => {
   const currentUser = await getCurrentUser();
 
   if (to.meta.requiresAuth && !currentUser) {
-    next({ name: "Login " }); // if auth required and user not logged in
+    next({ name: "Login" }); // Fixed: removed extra space in "Login "
   } else {
     next();
   }

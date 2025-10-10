@@ -5,7 +5,9 @@
 
     <!-- Authenticated layout: permanent sidebar, scrollable main -->
     <template v-else>
+      <!-- Sidebar only shows when NOT in fullscreen mode -->
       <v-navigation-drawer
+        v-if="!isFullscreen"
         app
         permanent
         width="260"
@@ -14,20 +16,28 @@
         <Sidebar />
       </v-navigation-drawer>
 
-      <v-main class="sb-main">
-        <router-view />
+      <v-main :class="['sb-main', { 'fullscreen-main': isFullscreen }]">
+        <!-- Listen for the toggle-fullscreen event from timer page -->
+        <router-view @toggle-fullscreen="handleFullscreen" />
       </v-main>
     </template>
   </v-app>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Sidebar from '@/components/sidebar.vue'
 
 const route = useRoute()
 const isLogin = computed(() => route.name === 'Login')
+
+// Fullscreen mode state
+const isFullscreen = ref(false)
+
+function handleFullscreen(value) {
+  isFullscreen.value = value
+}
 </script>
 
 <style scoped>
@@ -35,8 +45,14 @@ const isLogin = computed(() => route.name === 'Login')
   border-right: 1px solid var(--surface-lighter);
   background: #fff;
 }
+
 .sb-main {
-  min-height: 100vh;              /* content area scrolls */
+  min-height: 100vh;
   background: var(--background);
+}
+
+.fullscreen-main {
+  padding: 0 !important;
+  margin: 0 !important;
 }
 </style>
