@@ -74,7 +74,7 @@ const editingSubject = ref(null)
 // Topic Dialog
 const topicDialog = ref(false)
 
-// Fetch tasks from tracker
+// Fetch tasks from tracker (only tasks with subjects will be shown in dropdown)
 async function fetchTasksFromTracker() {
   try {
     const data = await api.get('/api/tasks')
@@ -148,11 +148,15 @@ const sessionTaskTitle = computed(() => {
   return tasksFromTracker.value.find(t => t.id === selectedTask.value)?.title
 })
 
-// Filter out completed tasks and filter by selected subject
+// Filter tasks for the dropdown - this logic filters by selected subject
 const availableTasks = computed(() => {
-  let filtered = tasksFromTracker.value.filter(task => task.status !== 'done')
+  // Step 1: Only show tasks that have a subjectId (tasks without subjects are excluded)
+  let filtered = tasksFromTracker.value.filter(task => 
+    task.status !== 'done' && task.subjectId !== null && task.subjectId !== undefined
+  )
   
-  // Filter by selected subject if one is selected (and not Miscellaneous)
+  // Step 2: Filter by selected subject - when a subject is selected, only show tasks tagged to that subject
+  // This ensures tasks appear in the dropdown below the subject field when a subject is selected
   if (selectedSubject.value && selectedSubject.value !== 'MISCELLANEOUS') {
     filtered = filtered.filter(task => task.subjectId === selectedSubject.value)
   }
@@ -163,7 +167,7 @@ const availableTasks = computed(() => {
 // Watch for changes in available tasks - clear selectedTask if it becomes unavailable
 watch([availableTasks, selectedTask], ([available, selected]) => {
   if (selected && !available.find(t => t.id === selected)) {
-    // Selected task is no longer available (was marked as done), clear it
+    // Selected task is no longer available (was marked as done or subject changed), clear it
     selectedTask.value = null
   }
 })
@@ -320,7 +324,7 @@ async function loadSubjects() {
     await fetchSubjects()
   } catch (error) {
     console.error('Error loading subjects:', error)
-    alert('Failed to load subjects: ' + error.message)
+    // Error logged to console only, not displayed to users
   }
 }
 
@@ -360,8 +364,7 @@ async function saveSubject() {
     
     subjectDialog.value = false
   } catch (error) {
-    console.error('Error saving subject:', error)
-    alert('Failed to save subject: ' + error.message)
+    console.error('Failed to save subject:', error)
   }
 }
 
@@ -377,8 +380,7 @@ async function handleDeleteSubject(subjectId) {
       selectedSubject.value = null
     }
   } catch (error) {
-    console.error('Error deleting subject:', error)
-    alert('Failed to delete subject: ' + error.message)
+    console.error('Failed to delete subject:', error)
   }
 }
 
@@ -426,7 +428,7 @@ async function markTaskAsComplete() {
   } catch (error) {
     console.error('Error updating task:', error)
     const errorMessage = error?.message || error?.detail || 'Failed to update task status. Please try again.'
-    alert(errorMessage)
+    console.error('Error:', errorMessage)
   } finally {
     isMarkingTaskComplete.value = false
   }
@@ -488,8 +490,7 @@ async function saveTopic() {
     await loadAllRecurringTopics()
     topicDialog.value = false
   } catch (error) {
-    console.error('Error saving topic:', error)
-    alert('Failed to save topic: ' + error.message)
+    console.error('Failed to save topic:', error)
   }
 }
 
@@ -503,8 +504,7 @@ async function handleDeleteTopic(topicId) {
     // Reload all topics after delete
     await loadAllRecurringTopics()
   } catch (error) {
-    console.error('Error deleting topic:', error)
-    alert('Failed to delete topic: ' + error.message)
+    console.error('Failed to delete topic:', error)
   }
 }
 
@@ -1115,6 +1115,9 @@ onUnmounted(() => { clearInterval(t) })
                   </v-select>
                   <div v-if="isMiscellaneousSelected" class="text-caption text-medium-emphasis mt-1">
                     Restricted for miscellaneous sessions
+                  </div>
+                  <div v-if="!isMiscellaneousSelected && availableTasks.length === 0 && selectedSubject" class="text-caption text-medium-emphasis mt-1">
+                    No tasks available for this subject. Tasks without subjects are not shown here.
                   </div>
                 </div>
 

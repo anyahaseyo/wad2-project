@@ -41,15 +41,7 @@
       </v-card-text>
     </v-card>
 
-    <v-alert
-      v-if="errorMessage"
-      type="error"
-      variant="tonal"
-      color="error"
-      class="mb-4"
-    >
-      {{ errorMessage }}
-    </v-alert>
+    <!-- Error messages removed - errors are logged to console only -->
 
     <v-progress-linear
       v-if="loading"
@@ -744,13 +736,13 @@
             :items="subjects"
             item-title="name"
             item-value="id"
-            label="Subject"
+            label="Subject (optional)"
             variant="outlined"
             density="compact"
             class="mb-3"
             hide-details
-            required
             :disabled="!subjects || subjects.length === 0"
+            clearable
             :menu-props="{ contentClass: 'dropdown-opaque' }"
           >
             <template v-slot:item="{ item, props }">
@@ -918,7 +910,7 @@ let fetchToken = 0;
 const fetchTasks = async () => {
   const token = ++fetchToken;
   loading.value = true;
-  errorMessage.value = "";
+      // Error messages removed from UI
   try {
     // construct query params
     const params = new URLSearchParams();
@@ -947,7 +939,7 @@ const fetchTasks = async () => {
     };
   } catch (error) {
     if (token === fetchToken) {
-      errorMessage.value = error.message || "Failed to load tasks";
+      console.error("Failed to load tasks:", error);
       tasks.value = [];
       stats.value = { total: 0, completed: 0, dueToday: 0, overdue: 0 };
     }
@@ -1061,7 +1053,7 @@ const openAddTaskDialog = () => {
 const startEditTask = (task) => {
   if (!task) return;
   addTaskError.value = "";
-  errorMessage.value = "";
+      // Error messages removed from UI
   editingTaskId.value = task.id;
   isEditing.value = true;
   
@@ -1088,7 +1080,7 @@ const startEditTask = (task) => {
 
 // add/update task
 const handleSubmitTask = async () => {
-  errorMessage.value = "";
+      // Error messages removed from UI
   addTaskError.value = "";
 
   const trimmedTitle = newTask.value.title.trim();
@@ -1097,10 +1089,8 @@ const handleSubmitTask = async () => {
     return;
   }
 
-  if (!newTask.value.subjectId) {
-    addTaskError.value = "Please select a subject";
-    return;
-  }
+  // Note: subjectId is now optional - tasks can be created without subjects
+  // Tasks without subjects will only appear in task tracker, not in study timer
 
   if (!newTask.value.dueDate) {
     addTaskError.value = "Please select a due date";
@@ -1151,7 +1141,7 @@ const handleArchiveTask = async (id) => {
     await fetchTasks();
     await fetchArchivedTasks();
   } catch (error) {
-    errorMessage.value = error.message || "Failed to archive task";
+    console.error("Failed to archive task:", error);
   } finally {
     loading.value = false;
   }
@@ -1166,7 +1156,7 @@ const handleStatusChange = async (id, newStatus) => {
     await api.patch(`/api/tasks/${id}`, { status: newStatus });
     await fetchTasks();
   } catch (error) {
-    errorMessage.value = error.message || "Failed to update task";
+    console.error("Failed to update task:", error);
   }
 };
 
@@ -1252,7 +1242,7 @@ const handleRestoreTask = async (id) => {
     await fetchTasks();
     await fetchArchivedTasks();
   } catch (error) {
-    errorMessage.value = error.message || "Failed to restore task";
+    console.error("Failed to restore task:", error);
   } finally {
     loading.value = false;
   }
@@ -1267,7 +1257,7 @@ const handlePermanentDeleteTask = async (id) => {
     await api.del(`/api/tasks/${id}/permanent`);
     await fetchArchivedTasks();
   } catch (error) {
-    errorMessage.value = error.message || "Failed to permanently delete task";
+    console.error("Failed to permanently delete task:", error);
   } finally {
     loading.value = false;
   }
@@ -1338,7 +1328,7 @@ const handleDrop = async (event, targetStatus) => {
       await api.patch(`/api/tasks/${taskId}`, { status: targetStatus });
       await fetchTasks();
     } catch (error) {
-      errorMessage.value = error.message || "Failed to update task status";
+      console.error("Failed to update task status:", error);
     }
   }
   

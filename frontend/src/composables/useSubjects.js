@@ -9,12 +9,13 @@ async function getAuthToken() {
   return await user.getIdToken()
 }
 
-const API_BASE_URL = (import.meta.env?.VITE_API_URL || process.env?.VUE_APP_API_URL || 'http://localhost:8000') + '/api'
+// Vite uses import.meta.env for environment variables (available at build time)
+// Note: process.env is NOT available in browser in Vite builds
+const API_BASE_URL = (import.meta.env?.VITE_API_URL || 'http://localhost:8000') + '/api'
 
-// Log API URL for debugging (always log to help troubleshoot)
+// Log API URL for debugging
 console.log('API_BASE_URL (useSubjects):', API_BASE_URL)
 console.log('VITE_API_URL:', import.meta.env?.VITE_API_URL)
-console.log('VUE_APP_API_URL:', process.env?.VUE_APP_API_URL)
 
 // ============================================================================
 // SUBJECTS COMPOSABLE
@@ -59,17 +60,23 @@ export function useSubjects() {
     } catch (e) {
       // Handle network errors specifically (Failed to fetch, network errors, etc.)
       if (e.name === 'TypeError' && (e.message.includes('fetch') || e.message.includes('Failed to fetch'))) {
-        const networkError = new Error(
-          `Network error: Cannot reach API at ${API_BASE_URL}. ` +
-          `Please check that VITE_API_URL is set correctly in your Vercel environment variables.`
-        )
-        error.value = networkError.message
-        console.error('Network error creating subject:', networkError.message)
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        let errorMsg = `Network error: Cannot reach API at ${API_BASE_URL}.`
+        
+        if (isLocalhost) {
+          errorMsg += ` Make sure your backend server is running on ${API_BASE_URL.replace('/api', '')}.`
+        } else {
+          errorMsg += ` Please check that VITE_API_URL is set correctly in your Vercel environment variables.`
+        }
+        
+        // Log error but don't throw to avoid triggering Vue error boundary
+        console.error('Network error creating subject:', errorMsg)
         console.error('Original error:', e)
-        throw networkError
+        // Return silently - don't throw to avoid UI error displays
+        return
       }
       
-      error.value = e.message
+      // Error logged to console only, not displayed to users
       console.error('Error creating subject:', e)
       throw e
     } finally {
@@ -107,17 +114,23 @@ export function useSubjects() {
     } catch (e) {
       // Handle network errors specifically (Failed to fetch, network errors, etc.)
       if (e.name === 'TypeError' && (e.message.includes('fetch') || e.message.includes('Failed to fetch'))) {
-        const networkError = new Error(
-          `Network error: Cannot reach API at ${API_BASE_URL}. ` +
-          `Please check that VITE_API_URL is set correctly in your Vercel environment variables.`
-        )
-        error.value = networkError.message
-        console.error('Network error fetching subjects:', networkError.message)
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        let errorMsg = `Network error: Cannot reach API at ${API_BASE_URL}.`
+        
+        if (isLocalhost) {
+          errorMsg += ` Make sure your backend server is running on ${API_BASE_URL.replace('/api', '')}.`
+        } else {
+          errorMsg += ` Please check that VITE_API_URL is set correctly in your Vercel environment variables.`
+        }
+        
+        // Log error but don't throw to avoid triggering Vue error boundary
+        console.error('Network error fetching subjects:', errorMsg)
         console.error('Original error:', e)
-        throw networkError
+        // Return empty array instead of throwing
+        return []
       }
       
-      error.value = e.message
+      // Error logged to console only, not displayed to users
       console.error('Error fetching subjects:', e)
       throw e
     } finally {
@@ -153,7 +166,7 @@ export function useSubjects() {
       }
       return updatedSubject
     } catch (e) {
-      error.value = e.message
+      // Error logged to console only, not displayed to users
       console.error('Error updating subject:', e)
       throw e
     } finally {
@@ -182,7 +195,7 @@ export function useSubjects() {
       subjects.value = subjects.value.filter(s => s.id !== subjectId)
       return true
     } catch (e) {
-      error.value = e.message
+      // Error logged to console only, not displayed to users
       console.error('Error deleting subject:', e)
       throw e
     } finally {
@@ -235,7 +248,7 @@ export function useRecurringTopics() {
       topics.value.push(newTopic)
       return newTopic
     } catch (e) {
-      error.value = e.message
+      // Error logged to console only, not displayed to users
       console.error('Error creating topic:', e)
       throw e
     } finally {
@@ -267,7 +280,7 @@ export function useRecurringTopics() {
       topics.value = await response.json()
       return topics.value
     } catch (e) {
-      error.value = e.message
+      // Error logged to console only, not displayed to users
       console.error('Error fetching topics:', e)
       throw e
     } finally {
@@ -303,7 +316,7 @@ export function useRecurringTopics() {
       }
       return updatedTopic
     } catch (e) {
-      error.value = e.message
+      // Error logged to console only, not displayed to users
       console.error('Error updating topic:', e)
       throw e
     } finally {
@@ -332,7 +345,7 @@ export function useRecurringTopics() {
       topics.value = topics.value.filter(t => t.id !== topicId)
       return true
     } catch (e) {
-      error.value = e.message
+      // Error logged to console only, not displayed to users
       console.error('Error deleting topic:', e)
       throw e
     } finally {
