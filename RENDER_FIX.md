@@ -17,12 +17,13 @@ Render detected Poetry (because `pyproject.toml` exists) but the build command i
 2. **VERIFY Root Directory is set to: `backend`** (This is the most common issue!)
 3. Update **Build Command** to:
    ```bash
-   pip install poetry && poetry install --without dev
+   pip install poetry && poetry install --without dev --no-root
    ```
    OR if Root Directory can't be set, use:
    ```bash
-   cd backend && pip install poetry && poetry install --without dev
+   cd backend && pip install poetry && poetry install --without dev --no-root
    ```
+   The `--no-root` flag tells Poetry not to install the project as a package (since it's an app, not a library)
 4. Keep **Start Command** as:
    ```bash
    uvicorn app.main:socket_app --host 0.0.0.0 --port $PORT

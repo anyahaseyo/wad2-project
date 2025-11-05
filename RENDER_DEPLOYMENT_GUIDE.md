@@ -27,8 +27,9 @@
 - **Root Directory**: `backend` ⚠️ **CRITICAL - Must be set to `backend`!**
 - **Runtime**: `Python 3`
 - **Build Command**: Choose one:
-  - **Option A (Recommended)**: `pip install poetry && poetry install --without dev` (uses your pyproject.toml)
-    - **If Root Directory is NOT set**: Use `cd backend && pip install poetry && poetry install --without dev`
+  - **Option A (Recommended)**: `pip install poetry && poetry install --without dev --no-root` (uses your pyproject.toml)
+    - The `--no-root` flag tells Poetry not to install the project itself, only dependencies
+    - **If Root Directory is NOT set**: Use `cd backend && pip install poetry && poetry install --without dev --no-root`
   - **Option B**: `pip install -r requirements.txt` (requires requirements.txt file)
 - **Start Command**: `uvicorn app.main:socket_app --host 0.0.0.0 --port $PORT`
 
@@ -163,15 +164,21 @@ After you deploy your frontend to Vercel and get the URL:
 **Error**: `Poetry could not find a pyproject.toml file in /opt/render/project/src or its parents`
 - **Fix**: 
   - **CRITICAL**: Set **Root Directory** to `backend` in Render Settings → General
-  - **OR** Use build command: `cd backend && pip install poetry && poetry install --without dev`
+  - **OR** Use build command: `cd backend && pip install poetry && poetry install --without dev --no-root`
   - This error means Poetry is running from the wrong directory (repo root instead of backend folder)
 
 **Error**: `The option "--no-dev" does not exist`
 - **Fix**: 
   - Poetry 2.0+ removed `--no-dev` flag
-  - Use `poetry install --without dev` instead (installs only production dependencies)
-  - **OR** use `poetry install --only main` (if you have a main dependency group)
-  - **OR** just use `poetry install` (will install all dependencies including dev)
+  - Use `poetry install --without dev --no-root` instead (installs only production dependencies)
+  - The `--no-root` flag tells Poetry not to install the project itself (since it's an app, not a library)
+
+**Error**: `Error: The current project could not be installed: No file/folder found for package backend`
+- **Fix**: 
+  - Add `--no-root` flag to build command: `poetry install --without dev --no-root`
+  - This tells Poetry not to install your project as a package (it's an app, not a library)
+  - **OR** add `package-mode = false` to `[tool.poetry]` section in `pyproject.toml`
+  - **OR** use `pip install -r requirements.txt` instead
 
 **Error**: `Module not found` or `pip install` fails
 - **Fix**: Check `requirements.txt` exists and has all dependencies, or use Poetry build command
