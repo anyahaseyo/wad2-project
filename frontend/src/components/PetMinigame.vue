@@ -224,28 +224,28 @@ function loadImages() {
 
   // Load flying monster sprites (64x64 px each frame)
   const flyingImg = new Image()
-  flyingImg.src = '/minigame/flying monster/Flying.png'
+  flyingImg.src = '/minigame/flying monster/FLYING.png'
   flyingImg.onload = () => {
     images.value.flyingMonsterFlying = flyingImg
     console.log('Flying monster (Flying) sprite loaded:', flyingImg.width, 'x', flyingImg.height)
   }
 
   const attackImg = new Image()
-  attackImg.src = '/minigame/flying monster/Attack.png'
+  attackImg.src = '/minigame/flying monster/ATTACK.png'
   attackImg.onload = () => {
     images.value.flyingMonsterAttack = attackImg
     console.log('Flying monster (Attack) sprite loaded:', attackImg.width, 'x', attackImg.height)
   }
 
   const hurtImg = new Image()
-  hurtImg.src = '/minigame/flying monster/Hurt.png'
+  hurtImg.src = '/minigame/flying monster/HURT.png'
   hurtImg.onload = () => {
     images.value.flyingMonsterHurt = hurtImg
     console.log('Flying monster (Hurt) sprite loaded:', hurtImg.width, 'x', hurtImg.height)
   }
 
   const deathImg = new Image()
-  deathImg.src = '/minigame/flying monster/Death.png'
+  deathImg.src = '/minigame/flying monster/DEATH.png'
   deathImg.onload = () => {
     images.value.flyingMonsterDeath = deathImg
     console.log('Flying monster (Death) sprite loaded:', deathImg.width, 'x', deathImg.height)
