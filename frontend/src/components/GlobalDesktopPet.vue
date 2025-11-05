@@ -9,6 +9,7 @@
       cursor: isDragging ? 'grabbing' : 'grab'
     }"
     @mousedown="handleMouseDown"
+    @touchstart="handleTouchStart"
   >
     <canvas ref="canvasRef" class="pet-canvas" />
     <img v-if="showHeart && petStatus && !petStatus.isDead" src="/heart.png" class="heart-icon" />
@@ -492,6 +493,80 @@ const handleMouseUp = (event) => {
   document.removeEventListener('mouseup', handleMouseUp)
 }
 
+/* Touch handlers for mobile */
+const handleTouchStart = (event) => {
+  event.preventDefault()
+  event.stopPropagation()
+
+  const touch = event.touches[0]
+  mouseDownTime = Date.now()
+  mouseDownPos = { x: touch.clientX, y: touch.clientY }
+
+  dragOffset.x = touch.clientX - pos.value.x
+  dragOffset.y = touch.clientY - pos.value.y
+
+  document.addEventListener('touchmove', handleTouchMove, { passive: false })
+  document.addEventListener('touchend', handleTouchEnd)
+  document.addEventListener('touchcancel', handleTouchEnd)
+}
+
+const handleTouchMove = (event) => {
+  event.preventDefault()
+
+  const touch = event.touches[0]
+  const dx = touch.clientX - mouseDownPos.x
+  const dy = touch.clientY - mouseDownPos.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
+
+  if (distance > 5) {
+    // It's a drag, not a tap
+    if (!isDragging.value) {
+      isDragging.value = true
+      setAnim('grabbed')
+    }
+
+    pos.value.x = touch.clientX - dragOffset.x
+    pos.value.y = touch.clientY - dragOffset.y
+  }
+}
+
+const handleTouchEnd = (event) => {
+  event.preventDefault()
+
+  const touchEndTime = Date.now()
+  const holdDuration = touchEndTime - mouseDownTime
+
+  // Get touch position from changedTouches (since touches array is empty on touchend)
+  const touch = event.changedTouches[0]
+  const dx = touch.clientX - mouseDownPos.x
+  const dy = touch.clientY - mouseDownPos.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
+
+  // If it was a quick tap (less than 200ms and less than 5px movement)
+  if (holdDuration < 200 && distance < 5) {
+    // Quick tap - show love!
+    showLove()
+  } else if (isDragging.value) {
+    // It was a drag - handle drop
+    isDragging.value = false
+
+    // Check if should fall
+    const groundY = findGroundBelow()
+    if (pos.value.y < groundY - 5) {
+      setAnim('falling')
+      isFalling = true
+    } else {
+      setAnim('idle')
+      walkTarget = null
+      walkCooldown = 1 + Math.random() * 3
+    }
+  }
+
+  document.removeEventListener('touchmove', handleTouchMove)
+  document.removeEventListener('touchend', handleTouchEnd)
+  document.removeEventListener('touchcancel', handleTouchEnd)
+}
+
 // Function to initialize pet
 async function initializePet() {
   try {
@@ -571,6 +646,9 @@ onBeforeUnmount(() => {
   cancelAnimationFrame(rafId)
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseup', handleMouseUp)
+  document.removeEventListener('touchmove', handleTouchMove)
+  document.removeEventListener('touchend', handleTouchEnd)
+  document.removeEventListener('touchcancel', handleTouchEnd)
   if (sleepTimer) {
     window.clearTimeout(sleepTimer)
   }
