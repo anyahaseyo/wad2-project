@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
 import { useCoins } from '@/composables/useCoins.js'
 import { useGlobalPet } from '@/composables/useGlobalPet.js'
 import { useMinigameProgress } from '@/composables/useMinigameProgress.js'
@@ -35,6 +35,28 @@ const GAME_DURATION = 2.5 * 60 * 1000 // 2.5 minutes
 const WAVE_DURATION = 30 * 1000 // 0.5 minute per wave
 const BASE_ENEMY_SPAWN_INTERVAL = 4000 // Base spawn interval (4 seconds for wave 1)
 const GOLD_DROP_CHANCE = 1 // 15% chance to drop gold
+
+// Responsive/Mobile state
+const isMobile = ref(false)
+const actualCanvasWidth = ref(CANVAS_WIDTH)
+const actualCanvasHeight = ref(CANVAS_HEIGHT)
+
+// Camera system
+const camera = ref({
+  x: 0,
+  y: 0
+})
+
+// Virtual joystick for mobile
+const joystick = ref({
+  active: false,
+  startX: 0,
+  startY: 0,
+  currentX: 0,
+  currentY: 0,
+  angle: 0,
+  distance: 0
+})
 
 // Game state
 const canvas = ref(null)
@@ -172,10 +194,149 @@ let gameLoopId = null
 let enemySpawnId = null
 let nextEnemyId = 0
 
+// Resize and mobile detection
+function handleResize() {
+  if (!canvas.value) return
+
+  const container = canvas.value.parentElement
+  if (!container) return
+
+  const containerWidth = container.clientWidth
+  const containerHeight = container.clientHeight
+
+  // Don't resize if container has no dimensions (not visible yet)
+  if (containerWidth === 0 || containerHeight === 0) return
+
+  // Check if mobile (smaller than default canvas size)
+  isMobile.value = containerWidth < CANVAS_WIDTH || containerHeight < CANVAS_HEIGHT
+
+  if (isMobile.value) {
+    // Fill the container on mobile
+    actualCanvasWidth.value = containerWidth
+    actualCanvasHeight.value = containerHeight
+    canvas.value.width = containerWidth
+    canvas.value.height = containerHeight
+  } else {
+    // Use default size on desktop
+    actualCanvasWidth.value = CANVAS_WIDTH
+    actualCanvasHeight.value = CANVAS_HEIGHT
+    canvas.value.width = CANVAS_WIDTH
+    canvas.value.height = CANVAS_HEIGHT
+  }
+
+  // Re-get context after resize
+  if (ctx.value) {
+    ctx.value = canvas.value.getContext('2d')
+    ctx.value.imageSmoothingEnabled = false
+  }
+
+  console.log(`Canvas resized: ${actualCanvasWidth.value}x${actualCanvasHeight.value}, isMobile: ${isMobile.value}`)
+}
+
+// Camera follow system
+function updateCamera() {
+  if (!isMobile.value) {
+    // Desktop: no camera movement, keep at 0,0
+    camera.value.x = 0
+    camera.value.y = 0
+    return
+  }
+
+  // Mobile: center camera on player
+  camera.value.x = player.value.x - actualCanvasWidth.value / 2
+  camera.value.y = player.value.y - actualCanvasHeight.value / 2
+
+  // Clamp camera to world bounds
+  camera.value.x = Math.max(0, Math.min(camera.value.x, WORLD_WIDTH - actualCanvasWidth.value))
+  camera.value.y = Math.max(0, Math.min(camera.value.y, WORLD_HEIGHT - actualCanvasHeight.value))
+}
+
+// Touch controls for mobile
+function handleTouchStart(e) {
+  if (!gameActive.value || gamePaused.value) return
+
+  e.preventDefault()
+  const touch = e.touches[0]
+  const rect = canvas.value.getBoundingClientRect()
+
+  joystick.value.active = true
+  joystick.value.startX = touch.clientX - rect.left
+  joystick.value.startY = touch.clientY - rect.top
+  joystick.value.currentX = joystick.value.startX
+  joystick.value.currentY = joystick.value.startY
+}
+
+function handleTouchMove(e) {
+  if (!joystick.value.active) return
+
+  e.preventDefault()
+  const touch = e.touches[0]
+  const rect = canvas.value.getBoundingClientRect()
+
+  joystick.value.currentX = touch.clientX - rect.left
+  joystick.value.currentY = touch.clientY - rect.top
+
+  // Calculate angle and distance
+  const dx = joystick.value.currentX - joystick.value.startX
+  const dy = joystick.value.currentY - joystick.value.startY
+  joystick.value.distance = Math.min(50, Math.sqrt(dx * dx + dy * dy))
+  joystick.value.angle = Math.atan2(dy, dx)
+}
+
+function handleTouchEnd(e) {
+  e.preventDefault()
+  joystick.value.active = false
+  joystick.value.distance = 0
+}
+
+// ResizeObserver for canvas container
+let resizeObserver = null
+
 // Load images
 onMounted(async () => {
   loadImages()
   await loadDailyPlayTime()
+
+  // Use ResizeObserver to detect container size changes
+  if (canvas.value && canvas.value.parentElement) {
+    resizeObserver = new ResizeObserver(() => {
+      // Use requestAnimationFrame to debounce resize
+      requestAnimationFrame(() => {
+        handleResize()
+      })
+    })
+    resizeObserver.observe(canvas.value.parentElement)
+  }
+
+  // Also listen to window resize as fallback
+  window.addEventListener('resize', handleResize)
+
+  // Initial resize with a small delay to ensure DOM is ready
+  setTimeout(() => {
+    handleResize()
+  }, 100)
+
+  // Add touch listeners for mobile controls
+  if (canvas.value) {
+    canvas.value.addEventListener('touchstart', handleTouchStart, { passive: false })
+    canvas.value.addEventListener('touchmove', handleTouchMove, { passive: false })
+    canvas.value.addEventListener('touchend', handleTouchEnd, { passive: false })
+    canvas.value.addEventListener('touchcancel', handleTouchEnd, { passive: false })
+  }
+})
+
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+  window.removeEventListener('resize', handleResize)
+  if (canvas.value) {
+    canvas.value.removeEventListener('touchstart', handleTouchStart)
+    canvas.value.removeEventListener('touchmove', handleTouchMove)
+    canvas.value.removeEventListener('touchend', handleTouchEnd)
+    canvas.value.removeEventListener('touchcancel', handleTouchEnd)
+  }
 })
 
 function loadImages() {
@@ -343,7 +504,7 @@ async function startGame() {
 
   console.log(`Starting game at Wave ${startingWave}, Level ${startingLevel} with FULL HEALTH (${startingMaxHealth})`)
 
-  // Set canvas context
+  // Set canvas context (resize will be handled by resize observer)
   ctx.value = canvas.value.getContext('2d')
   ctx.value.imageSmoothingEnabled = false
 
@@ -450,6 +611,9 @@ function gameLoop() {
   // Update player
   updatePlayer()
 
+  // Update camera to follow player (mobile)
+  updateCamera()
+
   // Update enemies
   updateEnemies()
 
@@ -485,13 +649,18 @@ function updatePlayer() {
   let dx = 0
   let dy = 0
 
+  // Keyboard controls
   if (keys.value.w || keys.value.ArrowUp) dy -= 1
   if (keys.value.s || keys.value.ArrowDown) dy += 1
   if (keys.value.a || keys.value.ArrowLeft) dx -= 1
   if (keys.value.d || keys.value.ArrowRight) dx += 1
 
-  // Normalize diagonal movement
-  if (dx !== 0 && dy !== 0) {
+  // Mobile joystick controls (override keyboard)
+  if (isMobile.value && joystick.value.active && joystick.value.distance > 5) {
+    dx = Math.cos(joystick.value.angle) * (joystick.value.distance / 50)
+    dy = Math.sin(joystick.value.angle) * (joystick.value.distance / 50)
+  } else if (dx !== 0 && dy !== 0) {
+    // Normalize diagonal movement for keyboard
     dx *= 0.707
     dy *= 0.707
   }
@@ -502,15 +671,16 @@ function updatePlayer() {
     player.value.x += dx * player.value.speed
     player.value.y += dy * player.value.speed
 
-    // Clamp to canvas
-    player.value.x = Math.max(player.value.width / 2, Math.min(CANVAS_WIDTH - player.value.width / 2, player.value.x))
-    player.value.y = Math.max(player.value.height / 2, Math.min(CANVAS_HEIGHT - player.value.height / 2, player.value.y))
+    // Clamp to world bounds (not canvas bounds)
+    player.value.x = Math.max(player.value.width / 2, Math.min(WORLD_WIDTH - player.value.width / 2, player.value.x))
+    player.value.y = Math.max(player.value.height / 2, Math.min(WORLD_HEIGHT - player.value.height / 2, player.value.y))
 
     // Set direction
-    if (dy < 0) player.value.direction = 'up'
-    else if (dy > 0) player.value.direction = 'down'
-    else if (dx < 0) player.value.direction = 'left'
-    else if (dx > 0) player.value.direction = 'right'
+    if (Math.abs(dy) > Math.abs(dx)) {
+      player.value.direction = dy < 0 ? 'up' : 'down'
+    } else {
+      player.value.direction = dx < 0 ? 'left' : 'right'
+    }
 
     // Animate
     player.value.frameTimer++
@@ -1277,21 +1447,25 @@ function draw() {
 
   // Clear canvas
   ctx.value.fillStyle = '#2a1810'
-  ctx.value.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+  ctx.value.fillRect(0, 0, actualCanvasWidth.value, actualCanvasHeight.value)
 
-  // Draw grid pattern
+  // Save context and apply camera offset
+  ctx.value.save()
+  ctx.value.translate(-camera.value.x, -camera.value.y)
+
+  // Draw grid pattern across the world
   ctx.value.strokeStyle = '#3a2820'
   ctx.value.lineWidth = 1
-  for (let x = 0; x < CANVAS_WIDTH; x += 40) {
+  for (let x = 0; x < WORLD_WIDTH; x += 40) {
     ctx.value.beginPath()
     ctx.value.moveTo(x, 0)
-    ctx.value.lineTo(x, CANVAS_HEIGHT)
+    ctx.value.lineTo(x, WORLD_HEIGHT)
     ctx.value.stroke()
   }
-  for (let y = 0; y < CANVAS_HEIGHT; y += 40) {
+  for (let y = 0; y < WORLD_HEIGHT; y += 40) {
     ctx.value.beginPath()
     ctx.value.moveTo(0, y)
-    ctx.value.lineTo(CANVAS_WIDTH, y)
+    ctx.value.lineTo(WORLD_WIDTH, y)
     ctx.value.stroke()
   }
 
@@ -1466,7 +1640,10 @@ function draw() {
     )
   }
 
-  // Draw UI
+  // Restore context (remove camera offset for UI)
+  ctx.value.restore()
+
+  // Draw UI (without camera offset)
   drawUI()
 }
 
@@ -1506,10 +1683,31 @@ function drawUI() {
   // Timer
   const minutes = Math.floor(gameTime.value / 60000)
   const seconds = Math.floor((gameTime.value % 60000) / 1000)
-  ctx.value.fillText(`${minutes}:${seconds.toString().padStart(2, '0')}`, CANVAS_WIDTH - 80, 26)
+  ctx.value.fillText(`${minutes}:${seconds.toString().padStart(2, '0')}`, actualCanvasWidth.value - 80, 26)
 
   // Kills
-  ctx.value.fillText(`Kills: ${enemiesKilled.value}`, CANVAS_WIDTH - 120, 50)
+  ctx.value.fillText(`Kills: ${enemiesKilled.value}`, actualCanvasWidth.value - 120, 50)
+
+  // Draw virtual joystick (mobile only)
+  if (isMobile.value && joystick.value.active) {
+    // Base circle
+    ctx.value.beginPath()
+    ctx.value.arc(joystick.value.startX, joystick.value.startY, 50, 0, Math.PI * 2)
+    ctx.value.fillStyle = 'rgba(255, 255, 255, 0.1)'
+    ctx.value.fill()
+    ctx.value.strokeStyle = 'rgba(255, 255, 255, 0.3)'
+    ctx.value.lineWidth = 2
+    ctx.value.stroke()
+
+    // Stick circle
+    ctx.value.beginPath()
+    ctx.value.arc(joystick.value.currentX, joystick.value.currentY, 20, 0, Math.PI * 2)
+    ctx.value.fillStyle = 'rgba(59, 130, 246, 0.6)'
+    ctx.value.fill()
+    ctx.value.strokeStyle = 'rgba(59, 130, 246, 0.8)'
+    ctx.value.lineWidth = 2
+    ctx.value.stroke()
+  }
 }
 
 // Keyboard events
@@ -1820,6 +2018,11 @@ function formatTime(ms) {
 
 .game-canvas-container {
   position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .game-canvas {
@@ -1827,6 +2030,31 @@ function formatTime(ms) {
   border-radius: 8px;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  touch-action: none; /* Prevent default touch behaviors */
+  display: block;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 960px) {
+  .game-canvas {
+    border-radius: 0;
+    border: 2px solid #3b82f6;
+  }
+
+  .minigame-container {
+    padding: 0;
+  }
+
+  .start-screen,
+  .game-over-screen,
+  .level-up-screen {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  .controls-hint {
+    font-size: 12px;
+  }
 }
 
 .stats {
