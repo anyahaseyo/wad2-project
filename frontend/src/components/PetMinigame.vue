@@ -1046,8 +1046,8 @@ function updateProjectiles() {
     proj.rotation += 0.2
 
     // Remove if off screen
-    if (proj.x < -50 || proj.x > CANVAS_WIDTH + 50 ||
-        proj.y < -50 || proj.y > CANVAS_HEIGHT + 50) {
+    if (proj.x < -50 || proj.x > WORLD_WIDTH + 50 ||
+        proj.y < -50 || proj.y > WORLD_HEIGHT + 50) {
       projectiles.value.splice(i, 1)
     }
   }
@@ -1101,8 +1101,8 @@ function updateEnemyProjectiles() {
     proj.y += proj.vy
 
     // Remove if off screen
-    if (proj.x < -50 || proj.x > CANVAS_WIDTH + 50 ||
-        proj.y < -50 || proj.y > CANVAS_HEIGHT + 50) {
+    if (proj.x < -50 || proj.x > WORLD_WIDTH + 50 ||
+        proj.y < -50 || proj.y > WORLD_HEIGHT + 50) {
       enemyProjectiles.value.splice(i, 1)
       continue
     }
