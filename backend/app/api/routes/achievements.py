@@ -319,13 +319,18 @@ async def claim_achievement(achievement_id: str, user: dict = Depends(require_us
     config = ACHIEVEMENTS_CONFIG[achievement_id]
     
     # Send achievement notification (in-app + email)
-    send_achievement_notification(
-        uid=uid,
-        achievement_title=config["title"],
-        achievement_icon=config["icon"],
-        achievement_description=config["description"],
-        achievement_id=achievement_id,
-    )
+    # Wrap in try-except to ensure notification failure doesn't break the claim
+    try:
+        send_achievement_notification(
+            uid=uid,
+            achievement_title=config["title"],
+            achievement_icon=config["icon"],
+            achievement_description=config["description"],
+            achievement_id=achievement_id,
+        )
+    except Exception as e:
+        # Log error but don't fail the claim
+        print(f"Warning: Failed to send achievement notification for {achievement_id}: {e}")
     
     return {
         "message": f"Successfully claimed '{config['title']}'!",

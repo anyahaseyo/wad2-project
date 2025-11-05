@@ -951,7 +951,23 @@ async function claimAchievement(achievement) {
     
   } catch (error) {
     console.error("Error claiming achievement:", error);
-    alert(error.response?.data?.detail || "Failed to claim achievement");
+    console.error("Error details:", {
+      message: error.message,
+      response: error.response,
+      stack: error.stack
+    });
+    
+    // Better error message extraction
+    let errorMessage = "Failed to claim achievement";
+    if (error.message) {
+      errorMessage = error.message;
+    } else if (error.response?.data?.detail) {
+      errorMessage = error.response.data.detail;
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    }
+    
+    alert(errorMessage);
   } finally {
     claimingAchievementId.value = null;
   }
