@@ -2010,11 +2010,27 @@ async function saveSettings() {
   z-index: 10;
   cursor: pointer;
   transition: all 0.2s;
+  color: var(--text-primary);
 }
 
 .camera-icon:hover {
   background: var(--surface-light);
   transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode camera icon */
+[data-theme="dark"] .camera-icon {
+  background: var(--surface);
+  border: 2px solid var(--surface-light);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .camera-icon:hover {
+  background: var(--surface-light);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
 }
 
 

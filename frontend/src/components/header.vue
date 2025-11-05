@@ -31,8 +31,16 @@ defineEmits(['update:modelValue'])
 <style scoped>
 .app-header {
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  background: white;
+  background: var(--surface);
+  color: var(--text-primary);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode header */
+[data-theme="dark"] .app-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface);
+  color: var(--text-primary);
 }
 
 .hamburger-btn {
@@ -54,11 +62,17 @@ defineEmits(['update:modelValue'])
   transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   position: relative;
   z-index: 2;
+  color: var(--text-primary);
 }
 
 .hamburger-btn:hover .hamburger-icon {
   transform: rotate(180deg);
   filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+}
+
+/* Dark mode hamburger icon */
+[data-theme="dark"] .hamburger-icon {
+  color: var(--text-primary);
 }
 
 /* Shimmer effect on hamburger button */
@@ -97,6 +111,22 @@ defineEmits(['update:modelValue'])
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmer 3s linear infinite;
+}
+
+/* Dark mode title shimmer */
+[data-theme="dark"] .title-shimmer {
+  background: linear-gradient(
+    90deg,
+    #fff 0%,
+    #ccc 25%,
+    #999 50%,
+    #ccc 75%,
+    #fff 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 @keyframes shimmer {
