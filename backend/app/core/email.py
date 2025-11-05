@@ -26,6 +26,7 @@ SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", SMTP_USER)
 SMTP_FROM_NAME = os.getenv("SMTP_FROM_NAME", "WAD2 Project")
+APP_BASE_URL = os.getenv("APP_BASE_URL", "https://your-app-url.com")
 
 
 class EmailService:
@@ -197,7 +198,7 @@ WAD2 Project Team
             <p style="font-size: 16px; color: #2d3436;">
                 Congratulations, {user_name}! You're making excellent progress on your wellness journey.
             </p>
-            <a href="https://your-app-url.com/profile?tab=achievements" class="cta-button">
+            <a href="{APP_BASE_URL}/profile?tab=achievements" class="cta-button">
                 View Your Achievements
             </a>
         </div>
@@ -317,7 +318,7 @@ WAD2 Project Team
         </div>
         
         <div style="text-align: center;">
-            <a href="https://your-app-url.com/checkin" class="cta-button">
+            <a href="{APP_BASE_URL}/checkin" class="cta-button">
                 Complete Check-in Now
             </a>
         </div>
@@ -435,7 +436,7 @@ WAD2 Project Team
         </div>
         
         <div style="text-align: center;">
-            <a href="https://your-app-url.com/timer" class="cta-button">
+            <a href="{APP_BASE_URL}/timer" class="cta-button">
                 Start Study Session
             </a>
         </div>

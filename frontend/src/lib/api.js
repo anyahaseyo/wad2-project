@@ -1,7 +1,8 @@
 import { auth } from "@/lib/firebase";
 
 // Support both Vite (import.meta.env) and Vue CLI (process.env.VUE_APP_API_URL)
-const API_BASE_URL = (import.meta?.env?.VITE_API_URL || process.env?.VUE_APP_API_URL || "http://localhost:8000");
+// Require API URL to be set via environment variable (no localhost fallback for production)
+const API_BASE_URL = import.meta?.env?.VITE_API_URL || process.env?.VUE_APP_API_URL || "";
 
 async function authorizedFetch(path, options = {}) {
 const user = auth.currentUser;
