@@ -9,7 +9,12 @@ async function getAuthToken() {
   return await user.getIdToken()
 }
 
-const API_BASE_URL = (import.meta.env?.VITE_API_URL || 'http://localhost:8000') + '/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_URL || process.env?.VUE_APP_API_URL || 'http://localhost:8000') + '/api'
+
+// Log API URL for debugging (always log to help troubleshoot)
+console.log('API_BASE_URL (useSubjects):', API_BASE_URL)
+console.log('VITE_API_URL:', import.meta.env?.VITE_API_URL)
+console.log('VUE_APP_API_URL:', process.env?.VUE_APP_API_URL)
 
 // ============================================================================
 // SUBJECTS COMPOSABLE
@@ -27,7 +32,14 @@ export function useSubjects() {
       error.value = null
       
       const token = await getAuthToken()
-      const response = await fetch(`${API_BASE_URL}/study-sessions/subjects`, {
+      const url = `${API_BASE_URL}/study-sessions/subjects`
+      
+      // Log URL for debugging
+      if (import.meta.env?.DEV) {
+        console.log('Creating subject at:', url)
+      }
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,7 +49,7 @@ export function useSubjects() {
       })
       
       if (!response.ok) {
-        const err = await response.json()
+        const err = await response.json().catch(() => ({ detail: `HTTP ${response.status}` }))
         throw new Error(err.detail || 'Failed to create subject')
       }
       
@@ -45,6 +57,18 @@ export function useSubjects() {
       subjects.value.push(newSubject)
       return newSubject
     } catch (e) {
+      // Handle network errors specifically (Failed to fetch, network errors, etc.)
+      if (e.name === 'TypeError' && (e.message.includes('fetch') || e.message.includes('Failed to fetch'))) {
+        const networkError = new Error(
+          `Network error: Cannot reach API at ${API_BASE_URL}. ` +
+          `Please check that VITE_API_URL is set correctly in your Vercel environment variables.`
+        )
+        error.value = networkError.message
+        console.error('Network error creating subject:', networkError.message)
+        console.error('Original error:', e)
+        throw networkError
+      }
+      
       error.value = e.message
       console.error('Error creating subject:', e)
       throw e
@@ -60,19 +84,39 @@ export function useSubjects() {
       error.value = null
       
       const token = await getAuthToken()
-      const response = await fetch(`${API_BASE_URL}/study-sessions/subjects`, {
+      const url = `${API_BASE_URL}/study-sessions/subjects`
+      
+      // Log URL for debugging
+      if (import.meta.env?.DEV) {
+        console.log('Fetching subjects from:', url)
+      }
+      
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
       
       if (!response.ok) {
-        throw new Error('Failed to fetch subjects')
+        const err = await response.json().catch(() => ({ detail: `HTTP ${response.status}` }))
+        throw new Error(err.detail || 'Failed to fetch subjects')
       }
       
       subjects.value = await response.json()
       return subjects.value
     } catch (e) {
+      // Handle network errors specifically (Failed to fetch, network errors, etc.)
+      if (e.name === 'TypeError' && (e.message.includes('fetch') || e.message.includes('Failed to fetch'))) {
+        const networkError = new Error(
+          `Network error: Cannot reach API at ${API_BASE_URL}. ` +
+          `Please check that VITE_API_URL is set correctly in your Vercel environment variables.`
+        )
+        error.value = networkError.message
+        console.error('Network error fetching subjects:', networkError.message)
+        console.error('Original error:', e)
+        throw networkError
+      }
+      
       error.value = e.message
       console.error('Error fetching subjects:', e)
       throw e
