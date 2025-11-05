@@ -95,13 +95,7 @@ def send_achievement_notification(
         True if notification was created successfully
     """
     try:
-        # Check if user has achievement notifications enabled
-        settings = get_user_notification_settings(uid)
-        if not settings.get("achievement_notifications"):
-            print(f"Achievement notifications disabled for user {uid}")
-            return False
-        
-        # Create in-app notification
+        # Always create in-app notification (regardless of settings)
         now = datetime.now(timezone.utc)
         notification_data = {
             "type": "achievement",
@@ -119,26 +113,36 @@ def send_achievement_notification(
         _notifications_collection(uid).add(notification_data)
         print(f"✅ In-app notification created for user {uid}")
         
-        # Send email notification
-        user_email = get_user_email(uid)
-        if user_email:
-            # Get user name (you might want to store this in user document)
-            user_doc = _user_doc(uid).get()
-            user_name = "there"
-            if user_doc.exists:
-                user_data = user_doc.to_dict() or {}
-                user_name = user_data.get("displayName") or user_data.get("name") or "there"
-            
-            subject, html_content, text_content = get_achievement_email_template(
-                user_name, achievement_title, achievement_icon, achievement_description
-            )
-            
-            email_service.send_email(
-                to_email=user_email,
-                subject=subject,
-                html_content=html_content,
-                text_content=text_content,
-            )
+        # Check if user has achievement notifications enabled for email
+        settings = get_user_notification_settings(uid)
+        email_enabled = settings.get("achievement_notifications", False)
+        
+        # Send email notification only if enabled
+        if email_enabled:
+            user_email = get_user_email(uid)
+            if user_email:
+                # Get user name (you might want to store this in user document)
+                user_doc = _user_doc(uid).get()
+                user_name = "there"
+                if user_doc.exists:
+                    user_data = user_doc.to_dict() or {}
+                    user_name = user_data.get("displayName") or user_data.get("name") or "there"
+                
+                subject, html_content, text_content = get_achievement_email_template(
+                    user_name, achievement_title, achievement_icon, achievement_description
+                )
+                
+                email_service.send_email(
+                    to_email=user_email,
+                    subject=subject,
+                    html_content=html_content,
+                    text_content=text_content,
+                )
+                print(f"✅ Achievement email sent to {user_email}")
+            else:
+                print(f"⚠️ No email found for user {uid}, skipping email notification")
+        else:
+            print(f"ℹ️ Email notifications disabled for user {uid}, in-app notification created")
         
         return True
         
