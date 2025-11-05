@@ -3,6 +3,11 @@ import { auth } from "@/lib/firebase";
 // Support both Vite (import.meta.env) and Vue CLI (process.env.VUE_APP_API_URL)
 const API_BASE_URL = (import.meta?.env?.VITE_API_URL || process.env?.VUE_APP_API_URL || "http://localhost:8000");
 
+// Log API URL for debugging
+console.log('API_BASE_URL (api.js):', API_BASE_URL);
+console.log('VITE_API_URL:', import.meta.env?.VITE_API_URL);
+console.log('VUE_APP_API_URL:', process.env?.VUE_APP_API_URL);
+
 async function authorizedFetch(path, options = {}) {
 const user = auth.currentUser;
 const token = user ? await user.getIdToken() : null;
@@ -22,19 +27,39 @@ const searchParams = new URLSearchParams();
     }
     url += `?${searchParams.toString()}`;
   }
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    const detail = await response.json().catch(() => ({}));
-    const message = detail.detail ?? detail.message ?? response.statusText;
-
-    throw new Error(message);
+  
+  // Log URL for debugging
+  if (import.meta.env?.DEV) {
+    console.log('Fetching from:', url);
   }
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
 
-  return response.json();
+    if (!response.ok) {
+      const detail = await response.json().catch(() => ({}));
+      const message = detail.detail ?? detail.message ?? response.statusText;
+
+      throw new Error(message);
+    }
+
+    return response.json();
+  } catch (e) {
+    // Handle network errors specifically (Failed to fetch, network errors, etc.)
+    if (e.name === 'TypeError' && (e.message.includes('fetch') || e.message.includes('Failed to fetch'))) {
+      const networkError = new Error(
+        `Network error: Cannot reach API at ${API_BASE_URL}. ` +
+        `Please check that VITE_API_URL is set correctly in your Vercel environment variables.`
+      );
+      console.error('Network error in authorizedFetch:', networkError.message);
+      console.error('Original error:', e);
+      throw networkError;
+    }
+    throw e;
+  }
 }
 
 export const api = {
