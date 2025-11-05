@@ -71,7 +71,7 @@ Quick summary:
 3. Connect GitHub repository
 4. Settings:
    - Root directory: `backend`
-   - Build command: `pip install poetry && poetry install --no-dev` (recommended) OR `pip install -r requirements.txt`
+   - Build command: `pip install poetry && poetry install --without dev` (recommended) OR `pip install -r requirements.txt`
    - Start command: `uvicorn app.main:socket_app --host 0.0.0.0 --port $PORT`
    - Environment: Python 3
 5. Add environment variables (see RENDER_DEPLOYMENT_GUIDE.md)

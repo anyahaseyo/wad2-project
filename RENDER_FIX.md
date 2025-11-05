@@ -10,13 +10,20 @@ Render detected Poetry (because `pyproject.toml` exists) but the build command i
 
 ### Option 1: Use Poetry (Recommended - since you have pyproject.toml)
 
+**CRITICAL: Make sure Root Directory is set to `backend` in Render Settings!**
+
 **In Render Dashboard:**
 1. Go to your service → Settings
-2. Update **Build Command** to:
+2. **VERIFY Root Directory is set to: `backend`** (This is the most common issue!)
+3. Update **Build Command** to:
    ```bash
-   pip install poetry && poetry install --no-dev
+   pip install poetry && poetry install --without dev
    ```
-3. Keep **Start Command** as:
+   OR if Root Directory can't be set, use:
+   ```bash
+   cd backend && pip install poetry && poetry install --without dev
+   ```
+4. Keep **Start Command** as:
    ```bash
    uvicorn app.main:socket_app --host 0.0.0.0 --port $PORT
    ```

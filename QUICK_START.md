@@ -9,8 +9,8 @@
 3. Connect GitHub → Select your repo
 4. Configure:
    - **Name**: `wad2-backend`
-   - **Root Directory**: `backend`
-   - **Build Command**: `pip install poetry && poetry install --no-dev` (recommended) OR `pip install -r requirements.txt`
+   - **Root Directory**: `backend` ⚠️ **MUST BE SET TO `backend`!**
+   - **Build Command**: `pip install poetry && poetry install --without dev` (recommended)
    - **Start Command**: `uvicorn app.main:socket_app --host 0.0.0.0 --port $PORT`
 5. Add environment variables (see below)
 6. Click **"Create Web Service"**

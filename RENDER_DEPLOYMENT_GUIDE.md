@@ -24,10 +24,11 @@
 - **Name**: `wad2-backend` (or your preferred name)
 - **Region**: Choose closest to your users (Oregon, Singapore, etc.)
 - **Branch**: `main` (or your default branch)
-- **Root Directory**: `backend`
+- **Root Directory**: `backend` ⚠️ **CRITICAL - Must be set to `backend`!**
 - **Runtime**: `Python 3`
 - **Build Command**: Choose one:
-  - **Option A (Recommended)**: `pip install poetry && poetry install --no-dev` (uses your pyproject.toml)
+  - **Option A (Recommended)**: `pip install poetry && poetry install --without dev` (uses your pyproject.toml)
+    - **If Root Directory is NOT set**: Use `cd backend && pip install poetry && poetry install --without dev`
   - **Option B**: `pip install -r requirements.txt` (requires requirements.txt file)
 - **Start Command**: `uvicorn app.main:socket_app --host 0.0.0.0 --port $PORT`
 
@@ -155,9 +156,22 @@ After you deploy your frontend to Vercel and get the URL:
 
 **Error**: `ERROR: Could not open requirements file: [Errno 2] No such file or directory: 'requirements.txt'`
 - **Fix**: 
-  - **Option 1**: Use Poetry build command: `pip install poetry && poetry install --no-dev` (recommended)
+  - **Option 1**: Use Poetry build command: `pip install poetry && poetry install --without dev` (recommended)
   - **Option 2**: Ensure `requirements.txt` is committed to your branch and Root Directory is set to `backend`
   - **Option 3**: Add environment variable `POETRY_DISABLE=1` to disable Poetry auto-detection
+
+**Error**: `Poetry could not find a pyproject.toml file in /opt/render/project/src or its parents`
+- **Fix**: 
+  - **CRITICAL**: Set **Root Directory** to `backend` in Render Settings → General
+  - **OR** Use build command: `cd backend && pip install poetry && poetry install --without dev`
+  - This error means Poetry is running from the wrong directory (repo root instead of backend folder)
+
+**Error**: `The option "--no-dev" does not exist`
+- **Fix**: 
+  - Poetry 2.0+ removed `--no-dev` flag
+  - Use `poetry install --without dev` instead (installs only production dependencies)
+  - **OR** use `poetry install --only main` (if you have a main dependency group)
+  - **OR** just use `poetry install` (will install all dependencies including dev)
 
 **Error**: `Module not found` or `pip install` fails
 - **Fix**: Check `requirements.txt` exists and has all dependencies, or use Poetry build command
