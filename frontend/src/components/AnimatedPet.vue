@@ -520,6 +520,153 @@ function handleMouseUp(event) {
   document.removeEventListener('mouseup', handleMouseUp)
 }
 
+/* Touch handlers for mobile */
+function handleTouchStart(event) {
+  event.preventDefault()
+  event.stopPropagation()
+
+  const touch = event.touches[0]
+  mouseDownTime = Date.now()
+  mouseDownPos = { x: touch.clientX, y: touch.clientY }
+
+  const parentRect = parent.getBoundingClientRect()
+  dragOffset.x = touch.clientX - parentRect.left - pos.value.x
+  dragOffset.y = touch.clientY - parentRect.top - pos.value.y
+
+  document.addEventListener('touchmove', handleTouchMove, { passive: false })
+  document.addEventListener('touchend', handleTouchEnd)
+  document.addEventListener('touchcancel', handleTouchEnd)
+}
+
+function handleTouchMove(event) {
+  event.preventDefault()
+
+  const touch = event.touches[0]
+  const dx = touch.clientX - mouseDownPos.x
+  const dy = touch.clientY - mouseDownPos.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
+
+  if (distance > 5) {
+    if (!isDragging.value) {
+      isDragging.value = true
+
+      // Wake up if sleeping
+      if (sleeping) {
+        wakeUpPet()
+      }
+
+      // Use clean animation when grabbed if available, otherwise idle
+      if (props.animations.clean) {
+        setAnim('clean')
+      } else {
+        setAnim('idle')
+      }
+    }
+
+    const parentRect = parent.getBoundingClientRect()
+    const petSize = props.slice * props.scale
+
+    // Calculate new position
+    let newX = touch.clientX - parentRect.left - dragOffset.x
+    let newY = touch.clientY - parentRect.top - dragOffset.y
+
+    // Check if trying to go outside boundaries
+    const hitBorder = newX < 0 || newX > bounds.w - petSize || newY < 0 || newY > bounds.h - petSize
+
+    // Emit warning if hitting border (throttled to once per second)
+    if (hitBorder) {
+      const now = Date.now()
+      if (now - lastBorderWarning > 1000) {
+        emit('border-warning')
+        lastBorderWarning = now
+      }
+    }
+
+    // Update position with collision detection and wall sliding
+    const validPos = getValidPositionWithSliding(newX, newY, pos.value.x, pos.value.y)
+    pos.value.x = validPos.x
+    pos.value.y = validPos.y
+  }
+}
+
+function handleTouchEnd(event) {
+  event.preventDefault()
+
+  const touchEndTime = Date.now()
+  const holdDuration = touchEndTime - mouseDownTime
+
+  // Get touch position from changedTouches (since touches array is empty on touchend)
+  const touch = event.changedTouches[0]
+  const dx = touch.clientX - mouseDownPos.x
+  const dy = touch.clientY - mouseDownPos.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
+
+  if (holdDuration < 200 && distance < 5) {
+    // Don't do anything if pet is dead
+    if (props.isDead) {
+      console.log('Pet is dead. Feed it to revive!')
+      return
+    }
+
+    // Don't do anything if pet is drunk
+    if (props.isDrunk) {
+      console.log('Pet is drunk! Wait for it to sober up...')
+      return
+    }
+
+    // Quick tap - wake up pet if sleeping or pet it
+    if (sleeping) {
+      wakeUpPet()
+    } else {
+      // Stop all movement for animation duration + hold time
+      idleUntil = performance.now() + (500 + 1000 + Math.random() * 2000)
+
+      // Clear any existing heart timer
+      if (heartTimer) {
+        clearTimeout(heartTimer)
+      }
+
+      // Show heart and play click animation
+      showHeart.value = true
+
+      // Play click animation if available, otherwise use clean
+      if (props.animations.click) {
+        setAnim('click', false)
+      } else if (props.animations.clean) {
+        setAnim('clean', false)
+      } else {
+        setAnim('idle')
+      }
+
+      console.log('Pet received love!')
+      try { emit('petted') } catch (e) {}
+
+      // Hide heart after 1.5 seconds
+      heartTimer = setTimeout(() => {
+        showHeart.value = false
+        heartTimer = null
+      }, 1500)
+
+      // After animation finishes, transition to idle
+      setTimeout(() => {
+        if (animKey === 'click') {
+          setAnim('idle')
+        }
+      }, 500 + 1000)
+    }
+  } else if (isDragging.value) {
+    isDragging.value = false
+    if (!props.isDead) {
+      setAnim('idle')
+    }
+    idleUntil = performance.now() + (1000 + Math.random() * 2000)
+  }
+
+  document.removeEventListener('touchmove', handleTouchMove)
+  document.removeEventListener('touchend', handleTouchEnd)
+  document.removeEventListener('touchcancel', handleTouchEnd)
+}
+
 /* Movement / render loop */
 function loop(t) {
   rafId = requestAnimationFrame(loop)
@@ -822,6 +969,7 @@ onMounted(async () => {
   scheduleRandomEvent()
   rafId = requestAnimationFrame(loop)
   c.addEventListener('mousedown', handleMouseDown)
+  c.addEventListener('touchstart', handleTouchStart, { passive: false })
 
   // Add keyboard event listeners
   window.addEventListener('keydown', handleKeyDown)
@@ -835,8 +983,12 @@ onBeforeUnmount(() => {
   cancelAnimationFrame(rafId)
   window.removeEventListener('resize', measure)
   canvasRef.value?.removeEventListener('mousedown', handleMouseDown)
+  canvasRef.value?.removeEventListener('touchstart', handleTouchStart)
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseup', handleMouseUp)
+  document.removeEventListener('touchmove', handleTouchMove)
+  document.removeEventListener('touchend', handleTouchEnd)
+  document.removeEventListener('touchcancel', handleTouchEnd)
   window.clearTimeout(randomEvt)
   window.clearTimeout(sleepTimeout)
   if (heartTimer) {

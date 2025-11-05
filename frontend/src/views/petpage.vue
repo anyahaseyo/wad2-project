@@ -59,9 +59,55 @@ const collisionData = ref({
   scale: 1
 })
 
+// Track window width for responsive pet scaling
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1920)
+
+// Responsive pet scale based on screen size
+const petScale = computed(() => {
+  const baseScale = PETS[selectedPetKey.value].config.scale
+
+  // Scale down on mobile devices
+  if (windowWidth.value <= 768) {
+    return baseScale * 0.6 // 60% of original size on mobile
+  } else if (windowWidth.value <= 960) {
+    return baseScale * 0.75 // 75% on tablets
+  }
+
+  return baseScale // Full size on desktop
+})
+
+// Update window width on resize
+function handleWindowResize() {
+  windowWidth.value = window.innerWidth
+}
+
 function handleCollisionReady(data) {
   collisionData.value = data
-  console.log('Collision data ready:', data)
+
+  // Add border collision rectangles to prevent pet from going onto blue background
+  // These create invisible walls around all edges of the pet-stage
+  const borderThickness = 50 // Thickness of the border collision area
+  const stageWidth = data.mapWidth || 800
+  const stageHeight = data.mapHeight || 600
+
+  const borderCollisions = [
+    // Top border
+    { x: -borderThickness, y: -borderThickness, width: stageWidth + borderThickness * 2, height: borderThickness },
+    // Bottom border
+    { x: -borderThickness, y: stageHeight, width: stageWidth + borderThickness * 2, height: borderThickness },
+    // Left border
+    { x: -borderThickness, y: 0, width: borderThickness, height: stageHeight },
+    // Right border
+    { x: stageWidth, y: 0, width: borderThickness, height: stageHeight }
+  ]
+
+  // Combine TMX collision objects with border collisions
+  collisionData.value.collisionObjects = [
+    ...data.collisionObjects,
+    ...borderCollisions
+  ]
+
+  console.log('Collision data ready with borders:', collisionData.value)
 }
 
 function handleMapLoaded(data) {
@@ -314,6 +360,120 @@ function onDrop(event) {
 function onDragOver(event) {
   event.preventDefault()
   event.dataTransfer.dropEffect = 'move'
+}
+
+/* ==== Touch Drag and Drop for Mobile ==== */
+let touchDragElement = null // Track the visual element being dragged
+
+function onTouchStartItem(event, item, index) {
+  event.preventDefault()
+  event.stopPropagation()
+
+  draggedItem = item
+  draggedItemIndex = index
+
+  // Create a visual clone of the dragged item
+  const touch = event.touches[0]
+  const target = event.currentTarget
+
+  touchDragElement = target.cloneNode(true)
+  touchDragElement.style.position = 'fixed'
+  touchDragElement.style.zIndex = '10000'
+  touchDragElement.style.pointerEvents = 'none'
+  touchDragElement.style.opacity = '0.8'
+  touchDragElement.style.width = '60px'
+  touchDragElement.style.height = '60px'
+  touchDragElement.style.left = touch.clientX - 30 + 'px'
+  touchDragElement.style.top = touch.clientY - 30 + 'px'
+
+  document.body.appendChild(touchDragElement)
+
+  // Add touch move and end listeners
+  document.addEventListener('touchmove', onTouchMoveItem, { passive: false })
+  document.addEventListener('touchend', onTouchEndItem)
+  document.addEventListener('touchcancel', onTouchEndItem)
+}
+
+function onTouchMoveItem(event) {
+  event.preventDefault()
+
+  if (!touchDragElement || !draggedItem) return
+
+  const touch = event.touches[0]
+  touchDragElement.style.left = touch.clientX - 30 + 'px'
+  touchDragElement.style.top = touch.clientY - 30 + 'px'
+}
+
+function onTouchEndItem(event) {
+  event.preventDefault()
+
+  if (!draggedItem) return
+
+  // Get the touch position
+  const touch = event.changedTouches[0]
+
+  // Find the pet stage element
+  const petStage = document.querySelector('.pet-stage')
+  if (!petStage) {
+    cleanup()
+    return
+  }
+
+  const rect = petStage.getBoundingClientRect()
+
+  // Check if touch ended within pet stage
+  if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+      touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+
+    // Calculate drop position relative to pet stage
+    let x = touch.clientX - rect.left
+    let y = touch.clientY - rect.top
+
+    const ITEM_SIZE = 40
+
+    // Clamp X to boundaries
+    x = Math.max(ITEM_SIZE / 2, Math.min(x, rect.width - ITEM_SIZE / 2))
+
+    // Adjust Y position
+    y = y - ITEM_SIZE / 2
+
+    // Clamp Y to prevent dropping too high or outside bounds
+    y = Math.max(0, Math.min(y, rect.height - ITEM_SIZE))
+
+    // Add dropped item to the background
+    droppedItems.value.push({
+      id: nextDroppedItemId++,
+      icon: draggedItem.icon,
+      name: draggedItem.name,
+      x: x,
+      y: y
+    })
+
+    // Remove one from inventory
+    if (draggedItem.count > 1) {
+      draggedItem.count--
+    } else {
+      inventory.value.splice(draggedItemIndex, 1)
+    }
+
+    // Save inventory to backend
+    saveInventory()
+  }
+
+  cleanup()
+
+  function cleanup() {
+    if (touchDragElement && touchDragElement.parentNode) {
+      document.body.removeChild(touchDragElement)
+    }
+    touchDragElement = null
+    draggedItem = null
+    draggedItemIndex = null
+
+    document.removeEventListener('touchmove', onTouchMoveItem)
+    document.removeEventListener('touchend', onTouchEndItem)
+    document.removeEventListener('touchcancel', onTouchEndItem)
+  }
 }
 
 // Remove dropped item (when pet eats it)
@@ -866,6 +1026,9 @@ function scheduleMidnightReset() {
 }
 
 onMounted(async () => {
+  // Add window resize listener for responsive pet scaling
+  window.addEventListener('resize', handleWindowResize)
+
   await loadDailyStatuses()
   scheduleMidnightReset()
   // Live update when a study session completes elsewhere
@@ -886,6 +1049,7 @@ async function handlePetPetted() {
 }
 
 onUnmounted(() => {
+  window.removeEventListener('resize', handleWindowResize)
   window.removeEventListener('study-session-completed', loadDailyStatuses)
 })
 </script>
@@ -912,7 +1076,7 @@ onUnmounted(() => {
           :key="selectedPetKey"
           :sprite-url="PETS[selectedPetKey].config.spriteUrl"
           :slice="PETS[selectedPetKey].config.slice"
-          :scale="PETS[selectedPetKey].config.scale"
+          :scale="petScale"
           :speed="PETS[selectedPetKey].config.speed"
           :animations="PETS[selectedPetKey].config.animations"
           :dropped-items="droppedItems"
@@ -1028,6 +1192,7 @@ onUnmounted(() => {
             class="inventory-slot filled"
             draggable="true"
             @dragstart="startDrag($event, item, index)"
+            @touchstart="onTouchStartItem($event, item, index)"
             @click="feedPet(index)"
           >
             <div class="slot-icon">
