@@ -10,7 +10,7 @@
 4. Configure:
    - **Name**: `wad2-backend`
    - **Root Directory**: `backend`
-   - **Build Command**: `pip install -r requirements.txt`
+   - **Build Command**: `pip install poetry && poetry install --no-dev` (recommended) OR `pip install -r requirements.txt`
    - **Start Command**: `uvicorn app.main:socket_app --host 0.0.0.0 --port $PORT`
 5. Add environment variables (see below)
 6. Click **"Create Web Service"**

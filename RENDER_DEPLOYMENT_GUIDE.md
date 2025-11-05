@@ -26,13 +26,16 @@
 - **Branch**: `main` (or your default branch)
 - **Root Directory**: `backend`
 - **Runtime**: `Python 3`
-- **Build Command**: `pip install -r requirements.txt`
+- **Build Command**: Choose one:
+  - **Option A (Recommended)**: `pip install poetry && poetry install --no-dev` (uses your pyproject.toml)
+  - **Option B**: `pip install -r requirements.txt` (requires requirements.txt file)
 - **Start Command**: `uvicorn app.main:socket_app --host 0.0.0.0 --port $PORT`
 
 **Important Notes:**
 - Render uses `$PORT` environment variable automatically (don't hardcode port)
 - The start command uses `socket_app` (not `app`) because your Socket.IO setup creates `socket_app = socketio.ASGIApp(sio, app)`
 - This ensures both REST API and WebSocket connections work correctly
+- **Build Command**: Since your project has `pyproject.toml`, Render may auto-detect Poetry. Use Poetry build command (Option A) to avoid conflicts
 - Render free tier may spin down after 15 minutes of inactivity (upgrade to paid to avoid this)
 
 ### Step 5: Set Environment Variables
@@ -150,8 +153,14 @@ After you deploy your frontend to Vercel and get the URL:
 
 ### Build Fails
 
+**Error**: `ERROR: Could not open requirements file: [Errno 2] No such file or directory: 'requirements.txt'`
+- **Fix**: 
+  - **Option 1**: Use Poetry build command: `pip install poetry && poetry install --no-dev` (recommended)
+  - **Option 2**: Ensure `requirements.txt` is committed to your branch and Root Directory is set to `backend`
+  - **Option 3**: Add environment variable `POETRY_DISABLE=1` to disable Poetry auto-detection
+
 **Error**: `Module not found` or `pip install` fails
-- **Fix**: Check `requirements.txt` exists and has all dependencies
+- **Fix**: Check `requirements.txt` exists and has all dependencies, or use Poetry build command
 - Verify Python version (should be 3.11+ based on your `pyproject.toml`)
 
 ### Service Won't Start
