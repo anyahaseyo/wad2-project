@@ -3,9 +3,8 @@ import { auth } from "@/lib/firebase";
 // Support both Vite (VITE_*) and Vue CLI (VUE_APP_*) environment variable conventions
 // Vue CLI uses import.meta.env with VUE_APP_ prefix, Vite uses VITE_ prefix
 // Note: process.env is NOT available in browser at runtime, only import.meta.env works
-const API_BASE_URL = import.meta?.env?.VITE_API_URL || 
-                     import.meta?.env?.VUE_APP_API_URL || 
-                     "http://localhost:8000";
+const API_BASE_URL = (import.meta?.env?.VITE_API_URL || process.env?.VUE_APP_API_URL || "http://localhost:8000");
+
 
 // Log API URL for debugging (always log, even in production)
 console.log('[api.js] API_BASE_URL:', API_BASE_URL);
