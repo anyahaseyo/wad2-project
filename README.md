@@ -61,7 +61,7 @@ Explain the core features and the benefit each provides.
 | <img src="https://firebase.google.com/downloads/brand-guidelines/PNG/logo-logomark.png" width="40"> | **Firebase** | Authentication and database services |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width="40"> | **Python** | Backend |
 | <img src="https://avatars.githubusercontent.com/u/156354296?s=200&v=4" width="40"> | **FastAPI** | API Framework |
-| <img src="https://en.wikipedia.org/wiki/OAuth#/media/File:Oauth_logo.svg" width="40"> | **Google OAuth 2.0** | OAuth for user creation |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Google_Favicon_2025.svg" width="40"> | **Google OAuth 2.0** | OAuth for user creation |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" width="40"> | **Google Calendar** | Google Calendar integration |
 | <img src="https://avatars.githubusercontent.com/u/65258374?s=200&v=4" width="40"> | **Notification API** | Notification for Achievement |
 
