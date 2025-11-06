@@ -234,7 +234,7 @@ npm run test
 Each member should contribute 2–3 sentences on their learning and project experience.
 
 > **Example Template:**  
-> - *Anya:* Learned how to build responsiven websites and backend integration along with game features and working with animations  
+> - *Anya:* Learned how to build responsiven websites and backend integration along with game features and working with animations. I also learned how to manage my time while working on this project as it was very coding intensive. This project experience was an overall very fun one and I would love to learn and do something like this again. 
 > - *Joash:* Gained experience connecting frontend and backend APIs.  
 > - *Ethan:* Improved UI/UX design workflow and collaboration using Figma.  
 > - *Darren:* Understood how Firebase Authentication and Firestore integrate with modern SPAs.  
@@ -243,6 +243,11 @@ Each member should contribute 2–3 sentences on their learning and project expe
 > - *Joe:* Understood how Firebase Authentication and Firestore integrate with modern SPAs.  
 
 As a team, reflect on:
-- Key takeaways from working with real-world frameworks  
-- Challenges faced and how they were resolved  
-- Insights on teamwork, project management, and problem-solving  
+- Key Takeaways from Real-World Frameworks
+Applying frameworks like the gamified pet system and wellness systems taught us how to translate theory into practical, engaging features. We learned to balance usability with emotional connection to sustain user motivation.
+
+- Challenges and Resolutions
+Integrating multiple systems, timer, analytics, and pet progression, while keeping the interface simple was a key challenge. We resolved this through iterative testing, clearer task delegation, and early data structure planning.
+
+- Insights on Teamwork and Problem-Solving
+Consistent communication and project tracking tools kept us aligned. We learned that teamwork, adaptability, and prioritising core features are vital for managing complex projects effectively.  
