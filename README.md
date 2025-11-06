@@ -31,18 +31,21 @@ Describe the **real-world business or community problem** your project addresses
 ## Web Solution Overview
 
 ### �� Intended Users
-Identify your target user groups.  
-Students, Working Adults
+Primary: Students (secondary school, university, and postgraduate levels)
+Secondary: Working adults seeking better work-life balance and study/wellness habits
 
 ### �� What Users Can Do & Benefits
 Explain the core features and the benefit each provides.  
 
 | Feature | Description | User Benefit |
 |:--|:--|:--|
-| Register & Login | Secure authentication system | Personalized experience and data security |
-| Search & Filter | Find items by category or location | Saves time finding relevant results |
-| Favorites | Bookmark preferred items or places | Quick access to commonly used data |
-| Reviews | Submit ratings and comments | Builds trust and community feedback |
+
+| Virtual Pet Wellness Companion | Tamagotchi-style virtual pet that evolves and thrives based on the user’s wellness and study habits | Builds emotional connection, promoting consistent engagement and self-care
+| Enhanced Study Timer System | Pomodoro-based study timer with microbreak reminders for stretching, hydration, and eye rest	| Improves focus and prevents burnout through structured study-rest cycles
+| Study Session Analytics & Productivity Insights | Tracks session data (task, subject, hours, progress, etc.) and generates productivity trends and completion insights | Helps users identify strengths, manage time effectively, and improve study performance
+| Assignment Progress Tracker (Calendar View) | To-do list integrated into a calendar for organising assignments and reflecting on progress | 	Enhances time management and accountability for ongoing tasks
+| Virtual Pet Gamification | Links study consistency and wellness habits to the pet’s well-being as you earn coins for your pet |	Encourages positive reinforcement and motivation through gamification
+| User Profile & Login System | Personalised account setup and secure data storage	| Ensures data privacy while enabling personalized recommendations
 
 ---
 
@@ -65,7 +68,7 @@ Explain the core features and the benefit each provides.
 
 Provide screenshots and captions showing how users interact with your app.
 
-1. **Pet Selection**  
+1. **Login**  
    <img src="screenshots/landing.png" width="600">  
    - Displays the homepage with navigation options.
 
@@ -73,23 +76,27 @@ Provide screenshots and captions showing how users interact with your app.
    <img src="screenshots/landing.png" width="600">  
    - Displays the homepage with navigation options.
 
-3. **Pet Selection**  
+3. **Study Timer**  
    <img src="screenshots/landing.png" width="600">  
    - Displays the homepage with navigation options.
 
-4. **Pet Selection**  
+4. **Task Tracker**  
    <img src="screenshots/landing.png" width="600">  
    - Displays the homepage with navigation options.
 
-5. **Pet Selection**  
+5. **Progress**  
    <img src="screenshots/landing.png" width="600">  
    - Displays the homepage with navigation options.
 
-6. **Search Feature**  
+6. **Daily Check-in**  
    <img src="screenshots/search.png" width="600">  
    - Users can browse and filter items by criteria.
 
-7. **User Dashboard**  
+7. **Pet**  
+   <img src="screenshots/dashboard.png" width="600">  
+   - Shows saved data and recent activities.
+
+8. **Profile**  
    <img src="screenshots/dashboard.png" width="600">  
    - Shows saved data and recent activities.
 
