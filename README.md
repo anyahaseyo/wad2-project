@@ -56,6 +56,11 @@ Explain the core features and the benefit each provides.
 | <img src="https://vitejs.dev/logo.svg" width="40"> | **Vite** | Development server and build tool |
 | <img src="https://vuejs.org/images/logo.png" width="40"> | **Vue.js 3** | Component-based frontend framework |
 | <img src="https://firebase.google.com/downloads/brand-guidelines/PNG/logo-logomark.png" width="40"> | **Firebase** | Authentication and database services |
+| <img src="https://www.python.org/static/img/python-logo.png" width="40"> | **Python** | Backend |
+| <img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" width="40"> | **FastAPI** | API Framework |
+| <img src="https://www.gstatic.com/marketing-cms/assets/images/f5/d3/a7f9db7045429cb6dc6be56bdcbe/google-logo-about.svg" width="40"> | **Google OAuth 2.0** | OAuth for user creation |
+| <img src="https://storage.googleapis.com/gweb-workspace-assets/uploads/7uffzv9dk4sn-5sS0jg4waN13DonunGp4O5-4ed7c4785b1425173cf5914e32684fd3-Product_Logo_-_Calendar.svg" width="40"> | **Google Calendar** | Google Calendar integration |
+| <img src="https://www.notificationapi.com/images/branding/Light%20NotificationAPI%20Horizontal.png" width="40"> | **Notification API** | Notification for Achievement |
 
 
 
