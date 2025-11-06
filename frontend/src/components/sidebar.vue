@@ -88,12 +88,6 @@
           <template v-if="coinsLoading">
             <div class="coin-loading">Loading coins...</div>
           </template>
-          <template v-else-if="coinsError">
-            <div class="coin-error">
-              <div class="error-icon">⚠️</div>
-              <div class="error-text">{{ coinsError }}</div>
-            </div>
-          </template>
           <template v-else>
             <AnimatedCoin :scale="2" :speed="8" />
             <div class="coin-amount">{{ coins }}</div>

@@ -9,9 +9,19 @@ async function getAuthToken() {
   return await user.getIdToken()
 }
 
-// Vite uses import.meta.env for environment variables (available at build time)
-// Note: process.env is NOT available in browser in Vite builds
-const API_BASE_URL = (import.meta.env?.VITE_API_URL || 'http://localhost:8000') + '/api'
+// Support both Vite (VITE_*) and Vue CLI (VUE_APP_*) environment variable conventions
+// Vue CLI uses import.meta.env with VUE_APP_ prefix, Vite uses VITE_ prefix
+const getApiBaseUrl = () => {
+  const baseUrl = import.meta.env?.VITE_API_URL || 
+                  import.meta.env?.VUE_APP_API_URL || 
+                  'http://localhost:8000'
+  const normalized = baseUrl.replace(/\/$/, '')
+  if (normalized.endsWith('/api')) {
+    return normalized
+  }
+  return `${normalized}/api`
+}
+const API_BASE_URL = getApiBaseUrl()
 
 export function useStudySessions() {
   const loading = ref(false)

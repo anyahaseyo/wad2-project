@@ -1,12 +1,16 @@
 import { auth } from "@/lib/firebase";
 
-// Vite uses import.meta.env for environment variables (available at build time)
-// Note: process.env is NOT available in browser in Vite builds
-const API_BASE_URL = (import.meta?.env?.VITE_API_URL || "http://localhost:8000");
+// Support both Vite (VITE_*) and Vue CLI (VUE_APP_*) environment variable conventions
+// Vue CLI uses import.meta.env with VUE_APP_ prefix, Vite uses VITE_ prefix
+const API_BASE_URL = import.meta?.env?.VITE_API_URL || 
+                     import.meta?.env?.VUE_APP_API_URL || 
+                     "http://localhost:8000";
 
-// Log API URL for debugging
-console.log('API_BASE_URL (api.js):', API_BASE_URL);
-console.log('VITE_API_URL:', import.meta.env?.VITE_API_URL);
+// Log API URL for debugging (always log, even in production)
+console.log('[api.js] API_BASE_URL:', API_BASE_URL);
+console.log('[api.js] VITE_API_URL:', import.meta.env?.VITE_API_URL || 'NOT SET');
+console.log('[api.js] VUE_APP_API_URL:', import.meta.env?.VUE_APP_API_URL || 'NOT SET');
+console.log('[api.js] Current hostname:', typeof window !== 'undefined' ? window.location.hostname : 'N/A');
 
 async function authorizedFetch(path, options = {}) {
 const user = auth.currentUser;
@@ -28,10 +32,8 @@ const searchParams = new URLSearchParams();
     url += `?${searchParams.toString()}`;
   }
   
-  // Log URL for debugging
-  if (import.meta.env?.DEV) {
-    console.log('Fetching from:', url);
-  }
+  // Log URL for debugging (always log in production to help debug)
+  console.log('[api.js] Fetching from:', url);
   
   try {
     const response = await fetch(url, {
@@ -56,7 +58,8 @@ const searchParams = new URLSearchParams();
       if (isLocalhost) {
         errorMsg += ` Make sure your backend server is running on ${API_BASE_URL.replace('/api', '')}.`
       } else {
-        errorMsg += ` Please check that VITE_API_URL is set correctly in your Vercel environment variables.`
+        const envValue = import.meta.env?.VITE_API_URL || import.meta.env?.VUE_APP_API_URL || 'NOT SET'
+        errorMsg += ` Please check that VITE_API_URL or VUE_APP_API_URL is set correctly in your Vercel environment variables. Current value: ${envValue}`
       }
       
       const networkError = new Error(errorMsg);
