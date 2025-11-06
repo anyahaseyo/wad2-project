@@ -59,8 +59,8 @@ Explain the core features and the benefit each provides.
 | <img src="https://vitejs.dev/logo.svg" width="40"> | **Vite** | Development server and build tool |
 | <img src="https://vuejs.org/images/logo.png" width="40"> | **Vue.js 3** | Component-based frontend framework |
 | <img src="https://firebase.google.com/downloads/brand-guidelines/PNG/logo-logomark.png" width="40"> | **Firebase** | Authentication and database services |
-| <img src="https://en.wikipedia.org/wiki/Python_%28programming_language%29#/media/File:Python-logo-notext.svg" width="40"> | **Python** | Backend |
-| <img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" width="40"> | **FastAPI** | API Framework |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width="40"> | **Python** | Backend |
+| <img src="https://avatars.githubusercontent.com/u/156354296?s=200&v=4" width="40"> | **FastAPI** | API Framework |
 | <img src="https://en.wikipedia.org/wiki/OAuth#/media/File:Oauth_logo.svg" width="40"> | **Google OAuth 2.0** | OAuth for user creation |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" width="40"> | **Google Calendar** | Google Calendar integration |
 | <img src="https://avatars.githubusercontent.com/u/65258374?s=200&v=4" width="40"> | **Notification API** | Notification for Achievement |
