@@ -2,7 +2,7 @@ import { auth } from "@/lib/firebase";
 
 // Vite uses import.meta.env for environment variables (available at build time)
 // Note: process.env is NOT available in browser in Vite builds
-const API_BASE_URL = (import.meta?.env?.VITE_API_URL || "http://localhost:8000");
+const API_BASE_URL = (import.meta?.env?.VITE_API_URL || process.env?.VUE_APP_API_URL || "http://localhost:8000");
 
 // Log API URL for debugging
 console.log('API_BASE_URL (api.js):', API_BASE_URL);
