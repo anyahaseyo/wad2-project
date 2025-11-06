@@ -12,6 +12,7 @@ async function getAuthToken() {
 // Support both Vite (VITE_*) and Vue CLI (VUE_APP_*) environment variable conventions
 // Vue CLI uses import.meta.env with VUE_APP_ prefix, Vite uses VITE_ prefix
 // Construct API base URL: normalize to avoid double /api
+// Note: process.env is NOT available in browser at runtime, only import.meta.env works
 const getApiBaseUrl = () => {
   // Try VITE_API_URL first (for Vite), then VUE_APP_API_URL (for Vue CLI)
   const baseUrl = import.meta.env?.VITE_API_URL || 
