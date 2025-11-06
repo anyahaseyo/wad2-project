@@ -5,6 +5,8 @@ from typing import Any, Dict
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from google.cloud import firestore
+from firebase_admin import auth
+from firebase_admin.auth import UserNotFoundError
 
 from ..deps.auth import require_user
 from ...core.firebase import db
@@ -95,10 +97,10 @@ def get_profile(user: dict = Depends(require_user)):
     """Get user profile data including flags"""
     uid = user["uid"]
     doc_snapshot = db.collection("users").document(uid).get()
-    
+
     if not doc_snapshot.exists:
         return {"hasSeenPremiumBorderModal": False}
-    
+
     user_data = doc_snapshot.to_dict() or {}
     return {
         "hasSeenPremiumBorderModal": user_data.get("hasSeenPremiumBorderModal", False)
@@ -109,25 +111,25 @@ def get_profile(user: dict = Depends(require_user)):
 def update_profile(payload: dict, user: dict = Depends(require_user)):
     """Update general user profile fields"""
     uid = user["uid"]
-    
+
     # Build update dictionary with only allowed fields
     update_data = {}
-    
+
     # Allow updating hasSeenPremiumBorderModal
     if "hasSeenPremiumBorderModal" in payload:
         update_data["hasSeenPremiumBorderModal"] = payload["hasSeenPremiumBorderModal"]
-    
+
     # Add more allowed fields here as needed
-    
+
     if not update_data:
         return {"ok": False, "message": "No valid fields to update"}
-    
+
     # Update the user document
     db.collection("users").document(uid).set(
         update_data,
         merge=True,
     )
-    
+
     return {"ok": True, "message": "Profile updated successfully"}
 
 
@@ -136,24 +138,28 @@ def update_avatar(payload: dict, user: dict = Depends(require_user)):
     """Update user's profile avatar (base64 encoded image)"""
     uid = user["uid"]
     avatar = payload.get("avatar")
-    
+
     # Allow null/empty string to remove avatar
     if avatar is None:
         return {"ok": False, "message": "Missing 'avatar' field"}
-    
+
     # Validate base64 string if provided (basic check)
     if avatar and isinstance(avatar, str) and len(avatar) > 0:
         # Check if it looks like a base64 data URL
-        if not (avatar.startswith("data:image/") or avatar.startswith("data:") or len(avatar) > 100):
+        if not (
+            avatar.startswith("data:image/")
+            or avatar.startswith("data:")
+            or len(avatar) > 100
+        ):
             # If it's not a data URL, assume it's a base64 string (for backward compatibility)
             pass
-    
+
     # Update avatar in Firestore
     db.collection("users").document(uid).set(
         {"avatar": avatar},
         merge=True,
     )
-    
+
     return {"ok": True, "message": "Avatar updated successfully", "avatar": avatar}
 
 
@@ -348,6 +354,13 @@ def delete_user_account(user: dict = Depends(require_user)):
         # Finally, delete the main user document
         db.collection("users").document(uid).delete()
         print(f"Deleted main user document for user {uid}")
+
+        try:
+            auth.delete_user(uid)
+
+            print(f"Successfully deleted user from Firebase Auth: {uid}")
+        except UserNotFoundError:
+            print(f"Error deleting user from Firebase Auth: User {uid} not found")
 
         return {
             "ok": True,
@@ -596,7 +609,9 @@ def get_recent_activity(user: dict = Depends(require_user)):
                 data = session.to_dict()
                 created_at = data.get("created_at")
                 # Check for actual_duration_minutes first (new format), fall back to duration_minutes (legacy)
-                duration = data.get("actual_duration_minutes") or data.get("duration_minutes", 0)
+                duration = data.get("actual_duration_minutes") or data.get(
+                    "duration_minutes", 0
+                )
                 subject = data.get("subject", "")
 
                 # Build title with subject if available
@@ -810,7 +825,12 @@ def select_pet(payload: dict, user: dict = Depends(require_user)):
             merge=True,
         )
 
-    return {"ok": True, "message": "Pet selected successfully", "selected_pet": pet_key, "pet_name": pet_name}
+    return {
+        "ok": True,
+        "message": "Pet selected successfully",
+        "selected_pet": pet_key,
+        "pet_name": pet_name,
+    }
 
 
 @router.post("/switch-pet")
