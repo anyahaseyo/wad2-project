@@ -16,11 +16,7 @@ router = APIRouter(prefix="/profile", tags=["profile"])
 SUCCESS_RESPONSE = {"ok": True, "message": "Operation completed successfully"}
 
 DEFAULT_NOTIFICATION_SETTINGS = {
-    "notifications": True,
-    "study_reminders": True,
-    "daily_checkin": True,
     "achievement_notifications": False,
-    "social_updates": False,
 }
 
 DEFAULT_USER_PREFERENCES = {
