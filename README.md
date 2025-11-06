@@ -69,36 +69,40 @@ Explain the core features and the benefit each provides.
 Provide screenshots and captions showing how users interact with your app.
 
 1. **Login**  
-   <img src="screenshots/landing.png" width="600">  
-   - Displays the homepage with navigation options.
+   <img src="screenshots/Login.png" width="600">  
+   - Displays Login page without option to login or sign up.
 
 2. **Pet Selection**  
-   <img src="screenshots/landing.png" width="600">  
-   - Displays the homepage with navigation options.
+   <img src="screenshots/PetSelection.png" width="600">  
+   - Displays 6 options for pets to choose when you first join and you can name the pet.
 
-3. **Study Timer**  
-   <img src="screenshots/landing.png" width="600">  
-   - Displays the homepage with navigation options.
+3. **Dashboard**  
+   <img src="screenshots/Dashboard.png" width="600">  
+   - Displays overall stats and pet health as well as google calendar to show what you have on that day.
 
-4. **Task Tracker**  
-   <img src="screenshots/landing.png" width="600">  
-   - Displays the homepage with navigation options.
+4. **Study Timer**  
+   <img src="screenshots/Timer.png" width="600">  
+   - Displays pomodoro timer for studying with the option to manage subjects.
 
-5. **Progress**  
-   <img src="screenshots/landing.png" width="600">  
-   - Displays the homepage with navigation options.
+5. **Task Tracker**  
+   <img src="screenshots/Task.png" width="600">  
+   - Displays all tasks and allows user to add tasks.
 
-6. **Daily Check-in**  
-   <img src="screenshots/search.png" width="600">  
-   - Users can browse and filter items by criteria.
+6. **Progress**  
+   <img src="screenshots/Analytics.png" width="600">  
+   - Displays analytics for the user based on time studied, tasks completed and wellness habits along with insights.
 
-7. **Pet**  
-   <img src="screenshots/dashboard.png" width="600">  
-   - Shows saved data and recent activities.
+7. **Daily Check-in**  
+   <img src="screenshots/Checkin.png" width="600">  
+   - Users can checkin how they feel and also read motivational messages.
 
-8. **Profile**  
-   <img src="screenshots/dashboard.png" width="600">  
-   - Shows saved data and recent activities.
+8. **Pet**  
+   <img src="screenshots/Pet.png" width="600">  
+   - Shows pet area with a shop, daily tasks and food. Also has a pet game for the user.
+
+9. **Profile**  
+   <img src="screenshots/Profile.png" width="600">  
+   - Shows achievements and profile settings with lifetime data.
 
 > Save screenshots inside `/screenshots` with clear filenames.
 
