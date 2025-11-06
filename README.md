@@ -10,11 +10,13 @@ G3 Group 7
 
 | Photo | Full Name | Role / Features Responsible For |
 |:--:|:--|:--|
-| <img src="photos/member1.jpg" width="80"> | Alice Tan | Frontend Developer - Search & Filter UI |
-| <img src="photos/member2.jpg" width="80"> | Ben Lee | Backend Developer - API endpoints |
-| <img src="photos/member3.jpg" width="80"> | Chloe Lim | UI/UX Designer - Layout & Color Themes |
-| <img src="photos/member4.jpg" width="80"> | David Ong | Database & Auth - Firebase Integration |
-
+| <img src="photos/anya.jpg" width="80"> | Anya Dharsan | Frontend + Backend Developer - Dashboard, Sidebar, Pet Selection, Responsiveness of pages|
+| <img src="photos/joash.jpg" width="80"> | Joash Lau| Frontend + Backend Developer - API endpoints |
+| <img src="photos/ethan.jpg" width="80"> | Ethan Ng| Frontend + Backend Developer - Layout & Color Themes |
+| <img src="photos/Darren_Neo.jpg" width="80"> | Darren Neo Ming Zhou| Frontend + Backend Developer - Firebase Integration |
+| <img src="photos/sandra.jpg" width="80"> | Sandra Yap Kah Xin| Frontend + Backend Developer - API endpoints |
+| <img src="photos/venice.jpg" width="80"> | Venice Hoe  | Frontend + Backend Developer - Layout & Color Themes |
+| <img src="photos/Joe.jpg" width="80"> | Joe Ye Di| Frontend + Backend Developer - Firebase Integration |
 > Place all headshot thumbnails in the `/photos` folder (JPEG or PNG).
 
 ---
@@ -23,17 +25,14 @@ G3 Group 7
 
 Describe the **real-world business or community problem** your project addresses.
 
-> *Example:*  
-> Small local businesses struggle to maintain an online presence, limiting visibility to customers.  
-> Our web application helps them list menus, accept feedback, and attract more customers.
-
+>Many students struggle to maintain a healthy balance between productivity and personal well-being. Existing apps often focus on only one aspect, >for instance, time management or mindfulness, without addressing how these areas intersect in daily student life. As a result, students  >experience burnout, poor mental health, and difficulty sustaining motivation. Our project tackles this gap by providing an integrated solution >that combines academic productivity with emotional wellness. By incorporating interactive and gamified features, it encourages consistency, >intentional resta and key challenges students face in managing both their performance and well-being.
 ---
 
 ## Web Solution Overview
 
 ### �� Intended Users
 Identify your target user groups.  
-Examples: small-business owners, caregivers, students, pet adopters, etc.
+Students, Working Adults
 
 ### �� What Users Can Do & Benefits
 Explain the core features and the benefit each provides.  
@@ -66,15 +65,31 @@ Explain the core features and the benefit each provides.
 
 Provide screenshots and captions showing how users interact with your app.
 
-1. **Landing Page**  
+1. **Pet Selection**  
    <img src="screenshots/landing.png" width="600">  
    - Displays the homepage with navigation options.
 
-2. **Search Feature**  
+2. **Pet Selection**  
+   <img src="screenshots/landing.png" width="600">  
+   - Displays the homepage with navigation options.
+
+3. **Pet Selection**  
+   <img src="screenshots/landing.png" width="600">  
+   - Displays the homepage with navigation options.
+
+4. **Pet Selection**  
+   <img src="screenshots/landing.png" width="600">  
+   - Displays the homepage with navigation options.
+
+5. **Pet Selection**  
+   <img src="screenshots/landing.png" width="600">  
+   - Displays the homepage with navigation options.
+
+6. **Search Feature**  
    <img src="screenshots/search.png" width="600">  
    - Users can browse and filter items by criteria.
 
-3. **User Dashboard**  
+7. **User Dashboard**  
    <img src="screenshots/dashboard.png" width="600">  
    - Shows saved data and recent activities.
 
@@ -155,7 +170,7 @@ To start the development server:
 ```bash
 npm run dev
 ```
-The project will run on [http://localhost:5173](http://localhost:5173) by default.
+The project will run on [http://localhost:8080](http://localhost:5173) by default.
 
 To build and preview the production version:
 ```bash
@@ -203,10 +218,13 @@ npm run test
 Each member should contribute 2–3 sentences on their learning and project experience.
 
 > **Example Template:**  
-> - *Alice:* Learned to build reusable Vue components and manage state effectively.  
-> - *Ben:* Gained experience connecting frontend and backend APIs.  
-> - *Chloe:* Improved UI/UX design workflow and collaboration using Figma.  
-> - *David:* Understood how Firebase Authentication and Firestore integrate with modern SPAs.  
+> - *Anya:* Learned how to build responsiven websites and backend integration along with game features and working with animations  
+> - *Joash:* Gained experience connecting frontend and backend APIs.  
+> - *Ethan:* Improved UI/UX design workflow and collaboration using Figma.  
+> - *Darren:* Understood how Firebase Authentication and Firestore integrate with modern SPAs.  
+> - *Sandra:* Gained experience connecting frontend and backend APIs.  
+> - *Venice:* Improved UI/UX design workflow and collaboration using Figma.  
+> - *Joe:* Understood how Firebase Authentication and Firestore integrate with modern SPAs.  
 
 As a team, reflect on:
 - Key takeaways from working with real-world frameworks  

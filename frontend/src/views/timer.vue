@@ -74,7 +74,7 @@ const editingSubject = ref(null)
 // Topic Dialog
 const topicDialog = ref(false)
 
-// Fetch tasks from tracker (only tasks with subjects will be shown in dropdown)
+// Fetch tasks from tracker
 async function fetchTasksFromTracker() {
   try {
     const data = await api.get('/api/tasks')
@@ -148,16 +148,11 @@ const sessionTaskTitle = computed(() => {
   return tasksFromTracker.value.find(t => t.id === selectedTask.value)?.title
 })
 
-// Filter tasks for the dropdown - this logic filters by selected subject
-// Only tasks with subjects are shown (tasks without subjects are excluded entirely)
+// Filter out completed tasks and filter by selected subject
 const availableTasks = computed(() => {
-  // Step 1: Only show tasks that have a subjectId (tasks without subjects are excluded)
-  let filtered = tasksFromTracker.value.filter(task => 
-    task.status !== 'done' && task.subjectId !== null && task.subjectId !== undefined
-  )
+  let filtered = tasksFromTracker.value.filter(task => task.status !== 'done')
   
-  // Step 2: Filter by selected subject - when a subject is selected, only show tasks tagged to that subject
-  // This ensures tasks appear in the dropdown below the subject field when a subject is selected
+  // Filter by selected subject if one is selected (and not Miscellaneous)
   if (selectedSubject.value && selectedSubject.value !== 'MISCELLANEOUS') {
     filtered = filtered.filter(task => task.subjectId === selectedSubject.value)
   }
@@ -168,7 +163,7 @@ const availableTasks = computed(() => {
 // Watch for changes in available tasks - clear selectedTask if it becomes unavailable
 watch([availableTasks, selectedTask], ([available, selected]) => {
   if (selected && !available.find(t => t.id === selected)) {
-    // Selected task is no longer available (was marked as done or subject changed), clear it
+    // Selected task is no longer available (was marked as done), clear it
     selectedTask.value = null
   }
 })
@@ -325,7 +320,7 @@ async function loadSubjects() {
     await fetchSubjects()
   } catch (error) {
     console.error('Error loading subjects:', error)
-    // Error logged to console only, not displayed to users
+    alert('Failed to load subjects: ' + error.message)
   }
 }
 
@@ -365,7 +360,8 @@ async function saveSubject() {
     
     subjectDialog.value = false
   } catch (error) {
-    console.error('Failed to save subject:', error)
+    console.error('Error saving subject:', error)
+    alert('Failed to save subject: ' + error.message)
   }
 }
 
@@ -381,7 +377,8 @@ async function handleDeleteSubject(subjectId) {
       selectedSubject.value = null
     }
   } catch (error) {
-    console.error('Failed to delete subject:', error)
+    console.error('Error deleting subject:', error)
+    alert('Failed to delete subject: ' + error.message)
   }
 }
 
@@ -429,7 +426,7 @@ async function markTaskAsComplete() {
   } catch (error) {
     console.error('Error updating task:', error)
     const errorMessage = error?.message || error?.detail || 'Failed to update task status. Please try again.'
-    console.error('Error:', errorMessage)
+    alert(errorMessage)
   } finally {
     isMarkingTaskComplete.value = false
   }
@@ -491,7 +488,8 @@ async function saveTopic() {
     await loadAllRecurringTopics()
     topicDialog.value = false
   } catch (error) {
-    console.error('Failed to save topic:', error)
+    console.error('Error saving topic:', error)
+    alert('Failed to save topic: ' + error.message)
   }
 }
 
@@ -505,7 +503,8 @@ async function handleDeleteTopic(topicId) {
     // Reload all topics after delete
     await loadAllRecurringTopics()
   } catch (error) {
-    console.error('Failed to delete topic:', error)
+    console.error('Error deleting topic:', error)
+    alert('Failed to delete topic: ' + error.message)
   }
 }
 
@@ -606,7 +605,6 @@ async function startNewSession() {
     }
 
     // Only include task_id if not Miscellaneous and task is selected
-    // Tasks without subjects are not linked to study sessions
     const taskId = isMiscellaneousSelected.value ? null : selectedTask.value
 
     const response = await api.post('/api/study-sessions/start', {
@@ -691,8 +689,6 @@ async function dispatchStudySessionCompleted() {
       // Create new completed session (fallback if session wasn't started properly)
       // Use planned duration if actual duration is invalid
       const durationToUse = actualDurationMinutes > 0 ? actualDurationMinutes : minutes.value
-      // Only include task_id if not Miscellaneous and task is selected
-      // Tasks without subjects are not linked to study sessions
       const taskId = isMiscellaneousSelected.value ? null : selectedTask.value
       
       await api.post('/api/study-sessions/', {
@@ -1112,16 +1108,13 @@ onUnmounted(() => { clearInterval(t) })
                       <v-list-item v-bind="props">
                         <template v-slot:title>{{ item.raw.title }}</template>
                         <template v-slot:subtitle>
-                          {{ item.raw.priority }} | {{ item.raw.subjectId ? (subjects.find(s => s.id === item.raw.subjectId)?.name || 'Unknown Subject') : 'Unknown Subject' }}
+                          {{ item.raw.priority }} | {{ item.raw.subjectId ? (subjects.find(s => s.id === item.raw.subjectId)?.name || 'Unknown Subject') : 'No Subject' }}
                         </template>
                       </v-list-item>
                     </template>
                   </v-select>
                   <div v-if="isMiscellaneousSelected" class="text-caption text-medium-emphasis mt-1">
-                    Task selection is not available for miscellaneous sessions
-                  </div>
-                  <div v-if="!isMiscellaneousSelected && availableTasks.length === 0 && selectedSubject" class="text-caption text-medium-emphasis mt-1">
-                    No tasks available for this subject. Only tasks with subjects are shown here.
+                    Restricted for miscellaneous sessions
                   </div>
                 </div>
 
@@ -1811,13 +1804,13 @@ onUnmounted(() => { clearInterval(t) })
 .coin-amount {
   font-size: 16px;
   font-weight: 700;
-  color: var(--warning);
+  color: #b8860b;
 }
 
 .coin-note {
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-muted);
+  color: #888;
   font-style: italic;
 }
 
@@ -2038,8 +2031,8 @@ li {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-      background-color: var(--error);
-      color: #ffffff;
+  background-color: rgba(211, 47, 47, 0.95);
+  color: white;
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 0.75rem;

@@ -149,7 +149,7 @@
             />
             <div class="text-caption text-md-subtitle-2">Study Streak</div>
             <div class="text-h6 text-md-h6 font-weight-bold mt-1">
-              {{ wellnessStreak }} days
+              {{ studyStreak }} days
             </div>
             <div class="text-caption text-disabled">Keep it up 🔥</div>
           </v-card-text>
@@ -330,15 +330,16 @@
 
 <script setup>
 import { computed, nextTick, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useAuth } from "@/composables/useAuth";
 import { useGlobalPet } from "@/composables/useGlobalPet";
 import { api } from "@/lib/api";
 
 const { userProfile, loading } = useAuth();
-const { petName, selectedPet, petStatus } = useGlobalPet();
+const { petName, selectedPet, petStatus, updatePetStatus } = useGlobalPet();
 const router = useRouter();
+const route = useRoute();
 const { mobile } = useDisplay();
 
 // Computed values for pet status, clamped to 0-100
@@ -379,6 +380,7 @@ const totalMinutesToday = ref(0);
 const sessionsCompletedToday = ref(0);
 const tasksTotal = ref(0);
 const tasksCompleted = ref(0);
+const studyStreak = ref(0);
 const wellnessStreak = ref(0);
 const wellnessDoneToday = ref(false);
 
@@ -404,10 +406,19 @@ const taskCompletionPct = computed(() => {
 
 async function loadDashboardData() {
   try {
-    // Study: today's total minutes and sessions
+    // Study: today's total minutes and sessions, and study streak
     const today = await api.get("/api/study-sessions/today-summary");
     totalMinutesToday.value = today.total_minutes || 0;
     sessionsCompletedToday.value = today.sessions_completed || 0;
+
+    // Study streak from stats summary
+    try {
+      const studyStats = await api.get("/api/study-sessions/stats/summary");
+      studyStreak.value = studyStats.study_streak || 0;
+    } catch (e) {
+      console.error("Failed to load study streak:", e);
+      studyStreak.value = 0;
+    }
 
     // Tasks: totals
     const stats = await api.get("/api/tasks/stats");
@@ -417,6 +428,20 @@ async function loadDashboardData() {
     // Wellness: streak and today status
     const wellness = await api.get("/api/wellness/overview");
     wellnessStreak.value = wellness.streak || 0;
+
+    // Pet status: fetch latest from backend
+    try {
+      const petStatusData = await api.get("/api/profile/pet-status");
+      if (petStatusData) {
+        updatePetStatus({
+          happiness: petStatusData.happiness ?? 60,
+          health: petStatusData.health ?? 60,
+          isDead: petStatusData.is_dead ?? false
+        });
+      }
+    } catch (e) {
+      console.error("Failed to load pet status:", e);
+    }
 
     // Robust today check: query month check-ins and look for today's date
     const now = new Date();
@@ -863,6 +888,13 @@ watch(
   },
   { deep: true }
 );
+
+// Refresh data when navigating to dashboard from another page
+watch(() => route.path, (newPath) => {
+  if (newPath === '/dashboard') {
+    loadDashboardData();
+  }
+});
 
 onMounted(() => {
   loadDashboardData();
