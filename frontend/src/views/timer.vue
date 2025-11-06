@@ -149,6 +149,7 @@ const sessionTaskTitle = computed(() => {
 })
 
 // Filter tasks for the dropdown - this logic filters by selected subject
+// Only tasks with subjects are shown (tasks without subjects are excluded entirely)
 const availableTasks = computed(() => {
   // Step 1: Only show tasks that have a subjectId (tasks without subjects are excluded)
   let filtered = tasksFromTracker.value.filter(task => 
@@ -605,6 +606,7 @@ async function startNewSession() {
     }
 
     // Only include task_id if not Miscellaneous and task is selected
+    // Tasks without subjects are not linked to study sessions
     const taskId = isMiscellaneousSelected.value ? null : selectedTask.value
 
     const response = await api.post('/api/study-sessions/start', {
@@ -689,6 +691,8 @@ async function dispatchStudySessionCompleted() {
       // Create new completed session (fallback if session wasn't started properly)
       // Use planned duration if actual duration is invalid
       const durationToUse = actualDurationMinutes > 0 ? actualDurationMinutes : minutes.value
+      // Only include task_id if not Miscellaneous and task is selected
+      // Tasks without subjects are not linked to study sessions
       const taskId = isMiscellaneousSelected.value ? null : selectedTask.value
       
       await api.post('/api/study-sessions/', {
@@ -1108,16 +1112,16 @@ onUnmounted(() => { clearInterval(t) })
                       <v-list-item v-bind="props">
                         <template v-slot:title>{{ item.raw.title }}</template>
                         <template v-slot:subtitle>
-                          {{ item.raw.priority }} | {{ item.raw.subjectId ? (subjects.find(s => s.id === item.raw.subjectId)?.name || 'Unknown Subject') : 'No Subject' }}
+                          {{ item.raw.priority }} | {{ item.raw.subjectId ? (subjects.find(s => s.id === item.raw.subjectId)?.name || 'Unknown Subject') : 'Unknown Subject' }}
                         </template>
                       </v-list-item>
                     </template>
                   </v-select>
                   <div v-if="isMiscellaneousSelected" class="text-caption text-medium-emphasis mt-1">
-                    Restricted for miscellaneous sessions
+                    Task selection is not available for miscellaneous sessions
                   </div>
                   <div v-if="!isMiscellaneousSelected && availableTasks.length === 0 && selectedSubject" class="text-caption text-medium-emphasis mt-1">
-                    No tasks available for this subject. Tasks without subjects are not shown here.
+                    No tasks available for this subject. Only tasks with subjects are shown here.
                   </div>
                 </div>
 
